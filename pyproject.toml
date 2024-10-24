@@ -2,9 +2,7 @@
 name = "pptlayout"
 version = "0.1.0"
 description = "Leverage llm to ameliorate the visual attractiveness of a presentation."
-authors = [
-    { name = "Tianyu Hu", email = "tianyuhu@mail.ustc.edu.cn"},
-    ]
+authors = ["Tianyu Hu"]
 license = "MIT"
 readme = "README.md"
 

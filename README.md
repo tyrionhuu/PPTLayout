@@ -24,7 +24,7 @@ It is not necessary, but the author choose to use [Conda](https://docs.conda.io/
     conda activate pptlayout
     ```
 
-3. Install the dependencies
+3. Install the dependencies with Poetry
 
     ``` shell
     poetry install

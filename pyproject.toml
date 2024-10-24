@@ -8,9 +8,8 @@ authors = [
 license = "MIT"
 readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "3.11"
-
+[project]
+requires-python = "=3.11"
 
 [build-system]
 requires = ["poetry-core"]

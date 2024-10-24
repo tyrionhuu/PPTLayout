@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ppt-layout"
+version = "0.1.0"
+description = "Leverage llm to ameliorate the visual attractiveness of a presentation."
+authors = ["Tianyu Hu"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

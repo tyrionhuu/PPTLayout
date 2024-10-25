@@ -121,7 +121,7 @@ class TableWrapper(BaseShapeWrapper):
         return super().describe_self()
 
 
-class Textbox(BaseShapeWrapper):
+class TextboxWrapper(BaseShapeWrapper):
     def __init__(self, shape, id=None):
         super().__init__(shape)
         self.text = shape.text_frame.text
@@ -162,6 +162,44 @@ class Textbox(BaseShapeWrapper):
             return f"[TextBox {self.id}]\n"
         else:
             return "[TextBox]\n"
+
+    def describe_self(self):
+        return super().describe_self()
+
+
+class PlaceholderWrapper(BaseShapeWrapper):
+    def __init__(self, shape):
+        super().__init__(shape)
+        self.fill = get_fill_color(shape)
+        self.text = shape.text_frame.text
+        if shape.has_text_frame:
+            textframe = shape.text_frame
+            try:
+                font = shape.text_frame.paragraphs[0].runs[0].font
+            except Exception:
+                font = shape.text_frame.paragraphs[0].font
+            self.bold = font.bold
+            self.italic = font.italic
+            self.underline = font.underline
+            self.size = font.size
+            try:
+                self.color = font.color.rgb
+            except Exception:
+                self.color = None
+            self.font_name = font.name
+            self.line_spacing = textframe.paragraphs[0].line_spacing
+            self.align = textframe.paragraphs[0].alignment
+
+    @property
+    def text_info(self):
+        if self.text is not None:
+            return f"Text: \n{self.text}\n"
+        else:
+            return ""
+
+    @property
+    def style_info(self):
+        return f"Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n"
 
     def describe_self(self):
         return super().describe_self()

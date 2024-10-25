@@ -51,8 +51,8 @@ max-line-length = 88
 max-complexity = 18
 select = "B,C,E,F,W,T4"
 
-[[tool.mypy.overrides]]
-module = "pptlayout.*"
+[tool.mypy]
+module = ".src.pptlayout"
 ignore_missing_imports = true
 
 # pytest configuration

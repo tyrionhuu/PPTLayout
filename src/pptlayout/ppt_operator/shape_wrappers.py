@@ -15,7 +15,16 @@ media clip – video or audio
 
 """
 
-from .utils import get_fill_color
+import os
+import sys
+
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../src/pptlayout/ppt_operator")
+    )
+)
+
+from utils import get_fill_color  # noqa: E402
 
 
 class BaseShapeWrapper:
@@ -27,7 +36,6 @@ class BaseShapeWrapper:
         self.top = shape.top
         self.name = shape.name
         self.shape_id = shape.shape_id
-        self.description = self.__repr__()
 
     @property
     def text_info(self) -> str:
@@ -53,7 +61,7 @@ class BaseShapeWrapper:
         except AssertionError:
             return f"{str(self.shape_type).split(' ')[0].strip()}\n"
 
-    def __repr__(self):
+    def describe_self(self) -> str:
         content = ""
         content += self.shape_description if self.shape_description is not None else ""
         content += self.size_info if self.size_info is not None else ""
@@ -61,6 +69,9 @@ class BaseShapeWrapper:
         content += self.position_info if self.position_info is not None else ""
         content += self.style_info if self.style_info is not None else ""
         return content
+
+    def __repr__(self):
+        return self.describe_self()
 
 
 class PictureWrapper(BaseShapeWrapper):
@@ -106,8 +117,8 @@ class TableWrapper(BaseShapeWrapper):
     def shape_description(self) -> str:
         return f"[Table] with {len(self.rows)} rows and {len(self.columns)} columns\n"
 
-    def __repr__(self):
-        return super().__repr__()
+    def describe_self(self):
+        return super().describe_self()
 
 
 class Textbox(BaseShapeWrapper):
@@ -152,5 +163,5 @@ class Textbox(BaseShapeWrapper):
         else:
             return "[TextBox]\n"
 
-    def __repr__(self):
-        return super().__repr__()
+    def describe_self(self):
+        return super().describe_self()

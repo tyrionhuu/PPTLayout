@@ -12,7 +12,7 @@ repos:
         name: black
         stages: [pre-commit]
         language: system
-        entry: poetry run black ./src
+        entry: poetry run black .
         types: [python]
 
       - id: flake8
@@ -27,7 +27,7 @@ repos:
         name: mypy
         stages: [pre-commit]
         language: system
-        entry: poetry run mypy ./src
+        entry: poetry run mypy .
         types: [python]
         pass_filenames: false
 

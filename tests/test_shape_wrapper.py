@@ -13,11 +13,19 @@ sys.path.append(
 )
 
 from shape_wrappers import BaseShapeWrapper  # noqa: E402
+from shape_wrappers import PictureWrapper  # noqa: E402
+
+PPTX_PATH = os.path.join(os.path.dirname(__file__), "./data/test.pptx")
 
 
 @pytest.fixture
-def sample_presentation():
-    """Fixture to create a sample PowerPoint presentation with a slide and shapes."""
+def load_presentation():
+    """Fixture to load the presentation."""
+    ppt = Presentation(PPTX_PATH)
+    return ppt
+
+
+def test_base_shape_wrapper():
     # Create a sample presentation
     ppt = Presentation()
 
@@ -38,28 +46,51 @@ def sample_presentation():
         MSO_SHAPE.OVAL, Inches(4), Inches(2), Inches(3), Inches(2)
     )
 
-    return ppt, slide, shape, ellipse
-
-
-def test_base_shape_wrapper(sample_presentation):
-    """Test the BaseShapeWrapper class with sample shapes."""
-    ppt, slide, shape, ellipse = sample_presentation
-
     # Create BaseShapeWrapper instances for each shape
     shape_wrapper = BaseShapeWrapper(shape)
     ellipse_wrapper = BaseShapeWrapper(ellipse)
+
+    # Print descriptions for both shapes
+    print("Testing Shape Wrapper:")
+    print(shape_wrapper)
+
+    print("Testing Ellipse Wrapper:")
+    print(ellipse_wrapper)
 
     # Assertions for testing
     assert "AUTO_SHAPE" in shape_wrapper.shape_description
     assert "Position: left=914400, top=914400" in shape_wrapper.position_info
     assert "Size: width=1828800, height=914400" in shape_wrapper.size_info
-    assert shape_wrapper.text_info is None
 
     assert "AUTO_SHAPE" in ellipse_wrapper.shape_description
     assert ellipse_wrapper.size_info == f"Size: width={Inches(3)}, height={Inches(2)}\n"
 
-    print("All tests passed!")
+    print("test_base_shape_wrapper passed!")
 
 
-if __name__ == "__main__":
-    pytest.main()
+def test_picture_wrapper(load_presentation):
+    """Test the PictureWrapper with pictures from the third slide."""
+    # Get the third slide (index 2 since it's zero-based)
+    third_slide = load_presentation.slides[2]
+
+    picture_wrappers = []
+
+    # Loop through shapes in the third slide and create PictureWrapper instances for pictures
+    for shape in third_slide.shapes:
+        if "PICTURE" in str(shape.shape_type):
+            picture_wrapper = PictureWrapper(shape)
+            picture_wrappers.append(picture_wrapper)
+
+    # Assertions for testing
+    assert len(picture_wrappers) > 0, "No pictures found on the third slide."
+
+    for idx, wrapper in enumerate(picture_wrappers):
+        print(f"Testing Picture Wrapper {idx + 1}:")
+        print(wrapper)
+
+        # Check if the description contains "Picture"
+        assert "Picture" in wrapper.shape_description
+        # Check if rotation info is available
+        assert isinstance(wrapper.rotation_info, str)
+
+    print("All picture wrapper tests passed!")

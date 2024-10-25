@@ -121,7 +121,7 @@ class TableWrapper(BaseShapeWrapper):
         return super().describe_self()
 
 
-class TextboxWrapper(BaseShapeWrapper):
+class TextBoxWrapper(BaseShapeWrapper):
     def __init__(self, shape, id=None):
         super().__init__(shape)
         self.text = shape.text_frame.text
@@ -200,6 +200,24 @@ class PlaceholderWrapper(BaseShapeWrapper):
     @property
     def style_info(self):
         return f"Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n"
+
+    def describe_self(self):
+        return super().describe_self()
+
+
+class AutoShapeWrapper(BaseShapeWrapper):
+    def __init__(self, shape):
+        super().__init__(shape)
+        self.text = shape.text_frame.text
+        self.fill = get_fill_color(shape)
+
+    @property
+    def text_info(self):
+        return f"Text: {self.text}\n"
+
+    @property
+    def style_info(self):
+        return f"Shape Style: fill={self.fill}\n"
 
     def describe_self(self):
         return super().describe_self()

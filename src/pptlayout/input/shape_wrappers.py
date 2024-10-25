@@ -19,9 +19,7 @@ import os
 import sys
 
 sys.path.append(
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../src/pptlayout/ppt_operation")
-    )
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
 )
 
 from utils import get_fill_color  # noqa: E402
@@ -38,8 +36,8 @@ class BaseShapeWrapper:
         self.shape_id = shape.shape_id
 
     @property
-    def text_info(self) -> str:
-        return ""
+    def text_info(self):
+        raise NotImplementedError
 
     @property
     def position_info(self) -> str:
@@ -50,8 +48,8 @@ class BaseShapeWrapper:
         return f"Size: width={self.width}, height={self.height}\n"
 
     @property
-    def style_info(self) -> str:
-        return ""
+    def style_info(self):
+        raise NotImplementedError
 
     @property
     def shape_description(self) -> str:

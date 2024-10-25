@@ -5,9 +5,7 @@ import pytest
 from pptx import Presentation
 
 sys.path.append(
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../src/pptlayout/ppt_operation")
-    )
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
 )
 
 from utils import get_slide_size  # noqa: E402

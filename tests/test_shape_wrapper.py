@@ -7,9 +7,7 @@ from pptx.enum.shapes import MSO_SHAPE, MSO_SHAPE_TYPE
 from pptx.util import Inches
 
 sys.path.append(
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../src/pptlayout/ppt_operation")
-    )
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
 )
 
 from shape_wrappers import BaseShapeWrapper  # noqa: E402

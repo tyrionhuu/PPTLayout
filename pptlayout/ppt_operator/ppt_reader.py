@@ -1,10 +1,12 @@
-import collections 
+import collections
 import collections.abc
-import pptx.parts.image
+
 import pptx.enum.shapes as shapes
+import pptx.parts.image
 from pptx import Presentation
-from pptx.enum.dml import MSO_THEME_COLOR, MSO_FILL
 from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_FILL, MSO_THEME_COLOR
+
 from .content_selection import *
 from .openai_api import *
 from .prompt_factor import *
@@ -15,7 +17,7 @@ global global_args
 SCALE = 1000
 slide_height = 0
 slide_width = 0
-shape_list = ['PLACEHOLDER', 'PICTURE', 'CHART', 'TABLE', 'TEXT_BOX', 'AUTO_SHAPE']
+shape_list = ["PLACEHOLDER", "PICTURE", "CHART", "TABLE", "TEXT_BOX", "AUTO_SHAPE"]
 slides = None
 
 
@@ -26,9 +28,11 @@ def get_fill_color(shape):
             return color.rgb
     return None
 
+
 def set_slides(slides1):
     global slides
     slides = slides1
+
 
 class BasicShape:
     def __init__(self, shape):
@@ -39,7 +43,7 @@ class BasicShape:
         self.top = shape.top // SCALE
         self.name = shape.name
         self.shape_id = shape.shape_id
-    
+
     @property
     def text_info(self):
         pass
@@ -47,7 +51,7 @@ class BasicShape:
     @property
     def space_info(self):
         return f"Visual Positions: left={self.left}, top={self.top}\n"
-    
+
     @property
     def size_info(self):
         return f"Size: height={self.height}, width={self.width}\n"
@@ -58,12 +62,12 @@ class BasicShape:
 
     @property
     def description(self):
-        # return f"[{self.name.split(' ')[0]}]\n" 
+        # return f"[{self.name.split(' ')[0]}]\n"
         try:
-            assert not self.name.split(' ')[0] == "Google"
+            assert not self.name.split(" ")[0] == "Google"
             return f"[{self.name.split(' ')[0]}]\n"
         except:
-            return f"[{str(self.shape_type).split(' ')[0].strip()}]\n" 
+            return f"[{str(self.shape_type).split(' ')[0].strip()}]\n"
 
     def __repr__(self):
         s = ""
@@ -83,17 +87,18 @@ class Picture(BasicShape):
         self.image = shape.image
         self.rotation = int(shape.rotation)
         self.id = id
-    
+
     @property
     def style_info(self):
         return f"Picture Style: rotation={self.rotation}\n"
-    
+
     @property
     def description(self):
         if self.id != None:
             return f"[Picture {self.id}]\n"
         else:
             return f"[Picture]\n"
+
 
 class Table(BasicShape):
     def __init__(self, shape):
@@ -111,18 +116,19 @@ class Table(BasicShape):
                 s += f"{col.text}|"
             s += "\n"
         return s
-    
+
     @property
     def description(self):
-        return f"[Table] with {len(self.rows)} rows and {len(self.columns)} columns\n" 
+        return f"[Table] with {len(self.rows)} rows and {len(self.columns)} columns\n"
+
 
 class Chart(BasicShape):
     def __init__(self, shape):
         super().__init__(shape)
         self.chart = shape.chart
         self.title = shape.chart.chart_title.text_frame.text
-        self.chart_type = str(shape.chart.chart_type).split(' ')[0]
-    
+        self.chart_type = str(shape.chart.chart_type).split(" ")[0]
+
     @property
     def text_info(self):
         s = ""
@@ -139,11 +145,11 @@ class Chart(BasicShape):
         except:
             pass
         return s
-    
+
     @property
     def style_info(self):
         return ""
-    
+
     @property
     def description(self):
         return "[Chart]\n"
@@ -161,24 +167,28 @@ class Textbox(BasicShape):
         self.bold = self.font.bold
         self.italic = self.font.italic
         self.underline = self.font.underline
-        self.size = self.font.size if self.font.size is not None else self.paragraphs[0].font.size
+        self.size = (
+            self.font.size
+            if self.font.size is not None
+            else self.paragraphs[0].font.size
+        )
         try:
-            self.color = self.font.color.rgb 
+            self.color = self.font.color.rgb
         except:
             self.color = None
         self.fill = get_fill_color(shape)
         self.font_name = self.font.name
         self.line_spacing = self.paragraphs[0].line_spacing
         self.align = self.paragraphs[0].alignment
-        self.id=id
-    
+        self.id = id
+
     @property
     def text_info(self):
         return f"Text: {self.text}\n"
-    
+
     @property
     def style_info(self):
-        return f'Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n'
+        return f"Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n"
 
     @property
     def description(self):
@@ -186,7 +196,8 @@ class Textbox(BasicShape):
             return f"[TextBox {self.id}]\n"
         else:
             return f"[TextBox]\n"
-    
+
+
 class Placeholder(BasicShape):
     def __init__(self, shape):
         super().__init__(shape)
@@ -201,25 +212,25 @@ class Placeholder(BasicShape):
             self.bold = font.bold
             self.italic = font.italic
             self.underline = font.underline
-            self.size = font.size 
+            self.size = font.size
             try:
-                self.color = font.color.rgb 
+                self.color = font.color.rgb
             except:
                 self.color = None
             self.font_name = font.name
             self.line_spacing = textframe.paragraphs[0].line_spacing
             self.align = textframe.paragraphs[0].alignment
-    
+
     @property
     def text_info(self):
         if self.text is not None:
             return f"Text: \n{self.text}\n"
         else:
             return ""
-    
+
     @property
     def style_info(self):
-        return f'Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n'
+        return f"Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n"
 
 
 class AutoShape(BasicShape):
@@ -227,15 +238,16 @@ class AutoShape(BasicShape):
         super().__init__(shape)
         self.text = shape.text_frame.text
         self.fill = get_fill_color(shape)
-    
+
     @property
     def text_info(self):
         return f"Text: {self.text}\n"
-    
+
     @property
     def style_info(self):
         return f"Shape Style: fill={self.fill}\n"
         # return ""
+
 
 def hasshape(shape_str, shape_list):
     for shape in shape_list:
@@ -243,7 +255,19 @@ def hasshape(shape_str, shape_list):
             return True
     return False
 
-def get_content(need_text,need_style,need_position,need_title,need_content,need_picture,need_table,need_chart,need_textbox,need_shape):
+
+def get_content(
+    need_text,
+    need_style,
+    need_position,
+    need_title,
+    need_content,
+    need_picture,
+    need_table,
+    need_chart,
+    need_textbox,
+    need_shape,
+):
     global slides
     global global_args
     s = ""
@@ -259,19 +283,22 @@ def get_content(need_text,need_style,need_position,need_title,need_content,need_
         for shape in slide.shapes:
             shape_type = shape.shape_type
 
-            if 'PLACEHOLDER' in str(shape_type) and (need_title or need_content):
+            if "PLACEHOLDER" in str(shape_type) and (need_title or need_content):
                 shape = Placeholder(shape)
-            elif 'PICTURE' in str(shape_type) and need_picture:
-                shape = Picture(shape,picture_idx)
+            elif "PICTURE" in str(shape_type) and need_picture:
+                shape = Picture(shape, picture_idx)
                 picture_idx += 1
-            elif 'CHART' in str(shape_type) and need_chart:
+            elif "CHART" in str(shape_type) and need_chart:
                 shape = Chart(shape)
-            elif 'TABLE' in str(shape_type) and need_table:
+            elif "TABLE" in str(shape_type) and need_table:
                 shape = Table(shape)
-            elif 'TEXT_BOX' in str(shape_type) and (need_textbox or (global_args.dataset=='long' and (need_title or need_content))):
-                shape = Textbox(shape,textbox_idx)
+            elif "TEXT_BOX" in str(shape_type) and (
+                need_textbox
+                or (global_args.dataset == "long" and (need_title or need_content))
+            ):
+                shape = Textbox(shape, textbox_idx)
                 textbox_idx += 1
-            elif 'AUTO_SHAPE' in str(shape_type) and need_shape:
+            elif "AUTO_SHAPE" in str(shape_type) and need_shape:
                 shape = AutoShape(shape)
             else:
                 continue
@@ -285,8 +312,9 @@ def get_content(need_text,need_style,need_position,need_title,need_content,need_
                 s += shape.style_info
             if need_position and not (shape.space_info is None):
                 s += shape.space_info
-            s += '\n'
+            s += "\n"
     return s
+
 
 def get_content_by_instructions(ppt_path, instruction, args, ppt):
     global slides
@@ -305,11 +333,11 @@ def get_content_by_instructions(ppt_path, instruction, args, ppt):
         try:
             prompt = PPT_content_selection_prompt.format(instruction)
             ppt_operation = query_azure_openai(prompt, model=args.model).strip()
-            print('#### Content Selection:')
+            print("#### Content Selection:")
             print(ppt_operation)
             ppt_content = eval(ppt_operation)
         except:
-            print('Content Selection Failed!')
+            print("Content Selection Failed!")
             ppt_operation = "get_content(need_text=1,need_style=1,need_position=1,need_title=1,need_content=1,need_picture=1,need_table=1,need_chart=1,need_textbox=1,need_shape=1)"
             ppt_content = eval(ppt_operation)
     else:
@@ -319,7 +347,9 @@ def get_content_by_instructions(ppt_path, instruction, args, ppt):
     return s, prompt
 
 
-def eval_get_contents(need_text=True, need_style=True, need_position=True, need_shape_list=None, ppt=None):
+def eval_get_contents(
+    need_text=True, need_style=True, need_position=True, need_shape_list=None, ppt=None
+):
     slides = ppt.slides
     s = ""
 
@@ -332,21 +362,23 @@ def eval_get_contents(need_text=True, need_style=True, need_position=True, need_
         textbox_idx = 0
         picture_idx = 0
         for shape in slide.shapes:
-            if need_shape_list is not None and not hasshape(str(shape.shape_type), need_shape_list):
+            if need_shape_list is not None and not hasshape(
+                str(shape.shape_type), need_shape_list
+            ):
                 continue
-            if 'PLACEHOLDER' in str(shape.shape_type):
+            if "PLACEHOLDER" in str(shape.shape_type):
                 shape = Placeholder(shape)
-            elif 'PICTURE' in str(shape.shape_type):
-                shape = Picture(shape,picture_idx)
+            elif "PICTURE" in str(shape.shape_type):
+                shape = Picture(shape, picture_idx)
                 picture_idx += 1
-            elif 'CHART' in str(shape.shape_type):
+            elif "CHART" in str(shape.shape_type):
                 shape = Chart(shape)
-            elif 'TABLE' in str(shape.shape_type):
+            elif "TABLE" in str(shape.shape_type):
                 shape = Table(shape)
-            elif 'TEXT_BOX' in str(shape.shape_type):
-                shape = Textbox(shape,textbox_idx)
+            elif "TEXT_BOX" in str(shape.shape_type):
+                shape = Textbox(shape, textbox_idx)
                 textbox_idx += 1
-            elif 'AUTO_SHAPE' in str(shape.shape_type):
+            elif "AUTO_SHAPE" in str(shape.shape_type):
                 shape = AutoShape(shape)
             else:
                 continue
@@ -359,8 +391,9 @@ def eval_get_contents(need_text=True, need_style=True, need_position=True, need_
                 s += shape.style_info
             if need_position and not (shape.space_info is None):
                 s += shape.space_info
-            s += '\n'
+            s += "\n"
     return s
+
 
 # def get_content_by_instructions(ppt_path, instruction, args, ppt):
 #     global slides
@@ -398,7 +431,7 @@ def eval_get_contents(need_text=True, need_style=True, need_position=True, need_
 #     else:
 #         need_text, need_style, need_position = 1,1,1
 #     # print(f"== Need Text == {need_text}\n== Need Style == {need_style}\n== Need Position == {need_position}\n")
-    
+
 
 #     ppt_content = get_contents(need_text=need_text, need_style=need_style, need_position=need_position, need_shape_list=need_shape_list, ppt=ppt)
 #     s += ppt_content
@@ -407,4 +440,3 @@ def eval_get_contents(need_text=True, need_style=True, need_position=True, need_
 
 if __name__ == "__main__":
     pass
-

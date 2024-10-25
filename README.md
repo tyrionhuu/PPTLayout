@@ -31,3 +31,11 @@ It is not necessary, but the author choose to use [Conda](https://docs.conda.io/
     ``` shell
     poetry install
     ```
+
+    Then Poetry should already activate the virtual environment for you. If not, you can activate it manually.
+
+4. Install the pre-commit hooks
+
+    ``` shell
+    pre-commit install
+    ```

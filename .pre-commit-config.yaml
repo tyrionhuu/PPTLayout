@@ -3,21 +3,21 @@ repos:
     hooks:
       - id: isort
         name: isort
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run isort
         types: [python]
 
       - id: black
         name: black
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run black
         types: [python]
 
       - id: flake8
         name: flake8
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run flake8
         types: [python]
@@ -25,7 +25,7 @@ repos:
 
       - id: mypy
         name: mypy
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run mypy
         types: [python]
@@ -33,14 +33,14 @@ repos:
 
       - id: pytest
         name: pytest
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run pytest
         types: [python]
 
       - id: pytest-cov
         name: pytest
-        stages: [push]
+        stages: [pre-push]
         language: system
         entry: poetry run pytest --cov --cov-fail-under=100
         types: [python]

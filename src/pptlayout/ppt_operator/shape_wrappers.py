@@ -15,6 +15,8 @@ media clip – video or audio
 
 """
 
+from .utils import get_fill_color
+
 
 class BaseShapeWrapper:
     def __init__(self, shape):
@@ -25,6 +27,7 @@ class BaseShapeWrapper:
         self.top = shape.top
         self.name = shape.name
         self.shape_id = shape.shape_id
+        self.description = self.__repr__()
 
     @property
     def text_info(self) -> str:
@@ -40,7 +43,7 @@ class BaseShapeWrapper:
 
     @property
     def style_info(self) -> str:
-        return f"Name: {self.name}, Shape ID: {self.shape_id}\n"
+        return ""
 
     @property
     def shape_description(self) -> str:
@@ -52,13 +55,11 @@ class BaseShapeWrapper:
 
     def __repr__(self):
         content = ""
-        content += self.shape_description
-        content += self.size_info
-        if self.text_info is not None:
-            content += self.text_info
-        content += self.position_info
-        if self.style_info is not None:
-            content += self.style_info
+        content += self.shape_description if self.shape_description is not None else ""
+        content += self.size_info if self.size_info is not None else ""
+        content += self.text_info if self.text_info is not None else ""
+        content += self.position_info if self.position_info is not None else ""
+        content += self.style_info if self.style_info is not None else ""
         return content
 
 
@@ -80,6 +81,9 @@ class PictureWrapper(BaseShapeWrapper):
     def rotation_info(self) -> str:
         return f"Rotation: {self.rotation}\n"
 
+    def __repr__(self):
+        return super().__repr__() + self.rotation_info
+
 
 class TableWrapper(BaseShapeWrapper):
     def __init__(self, shape):
@@ -90,14 +94,63 @@ class TableWrapper(BaseShapeWrapper):
 
     @property
     def text_info(self) -> str:
-        content = "Data:\n"
+        content = "Table:\n"
         for row in self.rows:
-            content += "|"
+            content += "\t"
             for cell in row.cells:
-                content += f"{cell.text}|"
+                content += f"{cell.text}\t"
             content += "\n"
         return content
 
     @property
     def shape_description(self) -> str:
         return f"[Table] with {len(self.rows)} rows and {len(self.columns)} columns\n"
+
+    def __repr__(self):
+        return super().__repr__()
+
+
+class Textbox(BaseShapeWrapper):
+    def __init__(self, shape, id=None):
+        super().__init__(shape)
+        self.text = shape.text_frame.text
+        self.paragraphs = shape.text_frame.paragraphs
+        try:
+            self.font = self.paragraphs[0].runs[0].font
+        except Exception:
+            self.font = self.paragraphs[0].font
+        self.bold = self.font.bold
+        self.italic = self.font.italic
+        self.underline = self.font.underline
+        self.size = (
+            self.font.size
+            if self.font.size is not None
+            else self.paragraphs[0].font.size
+        )
+        try:
+            self.color = self.font.color.rgb
+        except Exception:
+            self.color = None
+        self.fill = get_fill_color(shape)
+        self.font_name = self.font.name
+        self.line_spacing = self.paragraphs[0].line_spacing
+        self.align = self.paragraphs[0].alignment
+        self.id = id
+
+    @property
+    def text_info(self):
+        return f"Text: {self.text}\n"
+
+    @property
+    def style_info(self):
+        return f"Font Style: bold={self.bold}, italic={self.italic}, underline={self.underline}, size={self.size}, color={self.color}, fill={self.fill}, font style={self.font_name}, line_space={self.line_spacing}, align={self.align}\n"
+
+    @property
+    def shape_description(self):
+        if self.id is not None:
+            return f"[TextBox {self.id}]\n"
+        else:
+            return "[TextBox]\n"
+
+    def __repr__(self):
+        return super().__repr__()

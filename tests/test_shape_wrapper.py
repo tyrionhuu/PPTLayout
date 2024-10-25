@@ -3,7 +3,7 @@ import sys
 
 import pytest
 from pptx import Presentation
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_SHAPE_TYPE
 from pptx.util import Inches
 
 sys.path.append(
@@ -14,6 +14,7 @@ sys.path.append(
 
 from shape_wrappers import BaseShapeWrapper  # noqa: E402
 from shape_wrappers import PictureWrapper  # noqa: E402
+from shape_wrappers import TableWrapper  # noqa: E402
 
 PPTX_PATH = os.path.join(os.path.dirname(__file__), "./data/test.pptx")
 
@@ -71,18 +72,19 @@ def test_base_shape_wrapper():
 def test_picture_wrapper(load_presentation):
     """Test the PictureWrapper with pictures from the third slide."""
     # Get the third slide (index 2 since it's zero-based)
-    third_slide = load_presentation.slides[2]
+    slide = load_presentation.slides[2]
 
     picture_wrappers = []
 
     # Loop through shapes in the third slide and create PictureWrapper instances for pictures
-    for shape in third_slide.shapes:
-        if "PICTURE" in str(shape.shape_type):
+    for shape in slide.shapes:
+        print(str(shape.shape_type))
+        if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
             picture_wrapper = PictureWrapper(shape)
             picture_wrappers.append(picture_wrapper)
 
     # Assertions for testing
-    assert len(picture_wrappers) > 0, "No pictures found on the third slide."
+    assert len(picture_wrappers) > 0, "No pictures found on this slide."
 
     for idx, wrapper in enumerate(picture_wrappers):
         print(f"Testing Picture Wrapper {idx + 1}:")
@@ -94,3 +96,29 @@ def test_picture_wrapper(load_presentation):
         assert isinstance(wrapper.rotation_info, str)
 
     print("All picture wrapper tests passed!")
+
+
+def test_table_wrapper(load_presentation):
+    """Test the TableWrapper with tables from the fourth slide."""
+    # Get the fourth slide (index 3 since it's zero-based)
+    slide = load_presentation.slides[9]
+
+    table_wrappers = []
+
+    # Loop through shapes in the fourth slide and create TableWrapper instances for tables
+    for shape in slide.shapes:
+        if shape.shape_type == MSO_SHAPE_TYPE.TABLE:
+            table_wrapper = TableWrapper(shape)
+            table_wrappers.append(table_wrapper)
+
+    # Assertions for testing
+    assert len(table_wrappers) > 0, "No tables found on this slide."
+
+    for idx, wrapper in enumerate(table_wrappers):
+        print(f"Testing Table Wrapper {idx + 1}:")
+        print(wrapper)
+
+        # Check if the description contains "Table"
+        assert "Table" in wrapper.shape_description
+
+    print("All table wrapper tests passed!")

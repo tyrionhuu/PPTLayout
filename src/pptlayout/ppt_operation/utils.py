@@ -7,3 +7,7 @@ def get_fill_color(shape) -> str:
         if hasattr(color, "rgb"):
             return color.rgb
     return ""
+
+
+def get_slide_size(presentation) -> tuple:
+    return presentation.slide_width, presentation.slide_height

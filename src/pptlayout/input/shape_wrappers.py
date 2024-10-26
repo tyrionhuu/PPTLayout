@@ -37,7 +37,7 @@ class BaseShapeWrapper:
 
     @property
     def text_info(self):
-        raise NotImplementedError
+        pass
 
     @property
     def position_info(self) -> str:
@@ -49,7 +49,7 @@ class BaseShapeWrapper:
 
     @property
     def style_info(self):
-        raise NotImplementedError
+        pass
 
     @property
     def shape_description(self) -> str:

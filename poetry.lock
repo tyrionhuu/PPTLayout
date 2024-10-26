@@ -1871,6 +1871,22 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "mirrors"
 
 [[package]]
+name = "transforms"
+version = "0.2.1"
+description = "Python transforms"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "transforms-0.2.1-py3-none-any.whl", hash = "sha256:2159892daec3d62d894bc575a64612509b7d1733418eb04bc58812257dcd3b2e"},
+    {file = "transforms-0.2.1.tar.gz", hash = "sha256:da1076d7762337b2c654db3e45dd1a7fb53794df7610a8b19a63e994cec43964"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+reference = "mirrors"
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1967,4 +1983,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.11"
-content-hash = "e2d262763ed0f7298928165386e217dd6e2319084877feb51d700489475d7dd8"
+content-hash = "706e2b13417afdc7e19a45e800b20b4c350a41367d7e0ebead5175c20ddbcdf1"

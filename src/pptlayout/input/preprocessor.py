@@ -1,7 +1,14 @@
 import copy
+import os
+import sys
 
 from torchvision import transforms
-from transforms import (
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
+)
+
+from transforms import (  # noqa: E402
     DiscretizeBoundingBox,
     LabelDictSort,
     LexicographicSort,

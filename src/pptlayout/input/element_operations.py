@@ -1,13 +1,24 @@
 import copy
 import math
+import os
 import random
+import sys
 from itertools import combinations, product
 
 import clip
 import cv2
 import numpy as np
 import torch
-from utils import decapulate, detect_loc_relation, detect_size_relation
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
+)
+
+from utils import (  # noqa: E402
+    decapulate,
+    detect_location_relation,
+    detect_size_relation,
+)
 
 
 class ShuffleElements:
@@ -148,15 +159,15 @@ class DiscretizeBoundingBox:
         self.max_x = self.num_x_grid
         self.max_y = self.num_y_grid
 
-    def discretize(self, bbox):
+    def discretize(self, bounding_box):
         """
         Args:
-            continuous_bbox torch.Tensor: N * 4
+            continuous_bounding_box torch.Tensor: N * 4
         Returns:
-            discrete_bbox torch.LongTensor: N * 4
+            discrete_bounding_box torch.LongTensor: N * 4
         """
-        cliped_boxes = torch.clip(bbox, min=0.0, max=1.0)
-        x1, y1, x2, y2 = decapulate(cliped_boxes)
+        clipped_boxes = torch.clip(bounding_box, min=0.0, max=1.0)
+        x1, y1, x2, y2 = decapulate(clipped_boxes)
         discrete_x1 = torch.floor(x1 * self.max_x)
         discrete_y1 = torch.floor(y1 * self.max_y)
         discrete_x2 = torch.floor(x2 * self.max_x)
@@ -165,15 +176,15 @@ class DiscretizeBoundingBox:
             [discrete_x1, discrete_y1, discrete_x2, discrete_y2], dim=-1
         ).long()
 
-    def continuize(self, bbox):
+    def continuize(self, bounding_box):
         """
         Args:
-            discrete_bbox torch.LongTensor: N * 4
+            discrete_bounding_box torch.LongTensor: N * 4
 
         Returns:
-            continuous_bbox torch.Tensor: N * 4
+            continuous_bounding_box torch.Tensor: N * 4
         """
-        x1, y1, x2, y2 = decapulate(bbox)
+        x1, y1, x2, y2 = decapulate(bounding_box)
         cx1, cx2 = x1 / self.max_x, x2 / self.max_x
         cy1, cy2 = y1 / self.max_y, y2 / self.max_y
         return torch.stack([cx1, cy1, cx2, cy2], dim=-1).float()
@@ -250,26 +261,26 @@ class AddRelation:
             canvas = data["labels_with_canvas"][i] == 0
 
             if ((0, (i, j)) in rel_sample) and (not canvas):
-                rel_size = detect_size_relation(bi, bj)
+                relation_size = detect_size_relation(bi, bj)
                 relations.append(
                     [
                         data["labels_with_canvas"][i],
                         data["labels_with_canvas_index"][i],
                         data["labels_with_canvas"][j],
                         data["labels_with_canvas_index"][j],
-                        self.type2index[rel_size],
+                        self.type2index[relation_size],
                     ]
                 )
 
             if (1, (i, j)) in rel_sample:
-                rel_loc = detect_loc_relation(bi, bj, canvas)
+                relation_location = detect_location_relation(bi, bj, canvas)
                 relations.append(
                     [
                         data["labels_with_canvas"][i],
                         data["labels_with_canvas_index"][i],
                         data["labels_with_canvas"][j],
                         data["labels_with_canvas_index"][j],
-                        self.type2index[rel_loc],
+                        self.type2index[relation_location],
                     ]
                 )
 
@@ -313,26 +324,28 @@ class SaliencyMapToBBoxes:
         self.min_side = min_side
         self.min_area = min_area
 
-    def _is_small_bbox(self, bbox):
+    def _is_small_bounding_box(self, bounding_box):
         return any(
             [
-                all([bbox[2] <= self.min_side, bbox[3] <= self.min_side]),
-                bbox[2] * bbox[3] < self.min_area,
+                all(
+                    [bounding_box[2] <= self.min_side, bounding_box[3] <= self.min_side]
+                ),
+                bounding_box[2] * bounding_box[3] < self.min_area,
             ]
         )
 
     def __call__(self, saliency_map):
         saliency_map_gray = cv2.cvtColor(saliency_map, cv2.COLOR_BGR2GRAY)
-        _, thresholded_map = cv2.threshold(
+        _, threshold_map = cv2.threshold(
             saliency_map_gray, self.threshold, 255, cv2.THRESH_BINARY
         )
         contours, _ = cv2.findContours(
-            thresholded_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            threshold_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
         bounding_boxes = []
         for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
-            if self.is_filter_small_bounding_boxes and self._is_small_bbox(
+            if self.is_filter_small_bounding_boxes and self._is_small_bounding_box(
                 [x, y, w, h]
             ):
                 continue
@@ -347,7 +360,7 @@ class CLIPTextEncoder:
     def __init__(self, model_name: str = "ViT-B/32"):
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model, self.proprocess = clip.load(self.model_name, self.device)
+        self.model, self.process = clip.load(self.model_name, self.device)
 
     @torch.no_grad()
     def __call__(self, text: str):

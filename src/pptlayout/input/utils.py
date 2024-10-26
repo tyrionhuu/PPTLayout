@@ -1,3 +1,4 @@
+import torch
 from pptx.enum.dml import MSO_FILL
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
@@ -53,5 +54,76 @@ This denotes the coordinates of the top-left and bottom-right corners of the box
 """
 
 
-def generate_bounding_box(left: int, top: int, width: int, height: int) -> list:
-    return [left, top, left + width, top + height]
+def decapulate(bounding_box):
+    if len(bounding_box.size()) == 2:
+        x1, y1, x2, y2 = bounding_box.T
+    else:
+        x1, y1, x2, y2 = bounding_box.permute(2, 0, 1)
+    return x1, y1, x2, y2
+
+
+def detect_size_relation(b1, b2):
+    REL_SIZE_ALPHA = 0.1
+    a1, a2 = b1[2] * b1[3], b2[2] * b2[3]
+    a1_sm = (1 - REL_SIZE_ALPHA) * a1
+    a1_lg = (1 + REL_SIZE_ALPHA) * a1
+
+    if a2 <= a1_sm:
+        return "smaller"
+
+    if a1_sm < a2 and a2 < a1_lg:
+        return "equal"
+
+    if a1_lg <= a2:
+        return "larger"
+
+    raise RuntimeError(b1, b2)
+
+
+def detect_loc_relation(b1, b2, canvas=False):
+    if canvas:
+        yc = b2[1] + b2[3] / 2
+        y_sm, y_lg = 1.0 / 3, 2.0 / 3
+
+        if yc <= y_sm:
+            return "top"
+
+        if y_sm < yc and yc < y_lg:
+            return "center"
+
+        if y_lg <= yc:
+            return "bottom"
+
+    else:
+        l1, t1, r1, b1 = convert_ltwh_to_ltrb(b1)
+        l2, t2, r2, b2 = convert_ltwh_to_ltrb(b2)
+
+        if b2 <= t1:
+            return "top"
+
+        if b1 <= t2:
+            return "bottom"
+
+        if t1 < b2 and t2 < b1:
+            if r2 <= l1:
+                return "left"
+
+            if r1 <= l2:
+                return "right"
+
+            if l1 < r2 and l2 < r1:
+                return "center"
+
+    raise RuntimeError(b1, b2, canvas)
+
+
+def convert_ltwh_to_ltrb(bounding_box):
+    if len(bounding_box.size()) == 1:
+        left, top, width, height = bounding_box
+        right = left + width
+        bottom = top + height
+        return left, top, right, bottom
+    left, top, width, height = decapulate(bounding_box)
+    right = left + width
+    bottom = top + height
+    return torch.stack([left, top, right, bottom], axis=-1)

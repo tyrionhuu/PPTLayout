@@ -6,7 +6,7 @@ sys.path.append(
 )
 
 from utils import (  # noqa: E402;
-    generate_bounding_box,
+    convert_ltwh_to_ltrb,
     get_fill_color,
     get_slide_size,
     map_shape_type_to_label,
@@ -85,7 +85,7 @@ class InputFormatter:
     def __init__(self, data):
         self.label = map_shape_type_to_label(data[1])
         # self.label = str(data[1])
-        self.bounding_box = generate_bounding_box(data[3], data[4], data[5], data[6])
+        self.bounding_box = convert_ltwh_to_ltrb([data[3], data[4], data[5], data[6]])
 
 
 class PowerPointShapeExtractor:

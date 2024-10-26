@@ -16,7 +16,7 @@ media clip – video or audio
 """
 
 from tabulate import tabulate
-from utils import get_fill_color  # noqa: E402
+from utils import get_fill_color
 
 
 class BaseShapeWrapper:

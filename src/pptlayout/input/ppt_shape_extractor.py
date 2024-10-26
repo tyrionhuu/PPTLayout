@@ -1,4 +1,4 @@
-from utils import convert_ltwh_to_ltrb, get_slide_size, map_shape_type_to_label
+from utils import get_slide_size
 
 
 class SlideShapeExtractor:
@@ -66,13 +66,6 @@ class SlideShapeExtractor:
                 ]
             )
         return [shapes]
-
-
-class InputFormatter:
-    def __init__(self, data):
-        self.label = map_shape_type_to_label(data[1])
-        # self.label = str(data[1])
-        self.bounding_box = convert_ltwh_to_ltrb([data[3], data[4], data[5], data[6]])
 
 
 HEADER = [

@@ -1,3 +1,7 @@
+import json
+import os
+import re
+
 import torch
 from pptx.enum.dml import MSO_FILL
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -48,10 +52,97 @@ def map_shape_type_to_label(shape_type) -> int:
     return mapping.get(shape_type, 0)  # Default to 0 if shape type is not found
 
 
-"""
-A tensor or list of bounding boxes, typically represented as a 2D array where each row corresponds to a bounding box in the format [x1, y1, x2, y2].
-This denotes the coordinates of the top-left and bottom-right corners of the box.
-"""
+ID2LABEL = {
+    "publaynet": {1: "text", 2: "title", 3: "list", 4: "table", 5: "figure"},
+    "rico": {
+        1: "text",
+        2: "image",
+        3: "icon",
+        4: "list item",
+        5: "text button",
+        6: "toolbar",
+        7: "web view",
+        8: "input",
+        9: "card",
+        10: "advertisement",
+        11: "background image",
+        12: "drawer",
+        13: "radio button",
+        14: "checkbox",
+        15: "multi-tab",
+        16: "pager indicator",
+        17: "modal",
+        18: "on/off switch",
+        19: "slider",
+        20: "map view",
+        21: "button bar",
+        22: "video",
+        23: "bottom navigation",
+        24: "number stepper",
+        25: "date picker",
+    },
+    "posterlayout": {1: "text", 2: "logo", 3: "underlay"},
+    "webui": {
+        0: "text",
+        1: "link",
+        2: "button",
+        3: "title",
+        4: "description",
+        5: "image",
+        6: "background",
+        7: "logo",
+        8: "icon",
+        9: "input",
+    },
+}
+
+
+CANVAS_SIZE = {
+    "rico": (90, 160),
+    "publaynet": (120, 160),
+    "posterlayout": (102, 150),
+    "webui": (120, 120),
+}
+
+
+def raw_data_path(x):
+    return os.path.join(os.path.dirname(__file__), f"../dataset/{x}/raw")
+
+
+LAYOUT_DOMAIN = {
+    "rico": "android",
+    "publaynet": "document",
+    "posterlayout": "poster",
+    "webui": "web",
+}
+
+
+def clean_text(text: str, remove_summary: bool = False):
+    if remove_summary:
+        text = re.sub(r"#.*?#", "", text)
+    text = text.replace("[#]", " ")
+    text = text.replace("#", " ")
+    text = text.replace("\n", " ")
+    text = text.replace(",", ", ")
+    text = text.replace(".", ". ").strip()
+    text = re.sub(r"[ ]+", " ", text)
+    return text
+
+
+def read_json(filename):
+    with open(filename, "r") as f:
+        data = json.load(f)
+    return data
+
+
+def read_pt(filename):
+    with open(filename, "rb") as f:
+        return torch.load(f)
+
+
+def write_pt(filename, obj):
+    with open(filename, "wb") as f:
+        torch.save(obj, f)
 
 
 def decapulate(bounding_box):
@@ -80,7 +171,7 @@ def detect_size_relation(b1, b2):
     raise RuntimeError(b1, b2)
 
 
-def detect_loc_relation(b1, b2, canvas=False):
+def detect_location_relation(b1, b2, canvas=False):
     if canvas:
         yc = b2[1] + b2[3] / 2
         y_sm, y_lg = 1.0 / 3, 2.0 / 3

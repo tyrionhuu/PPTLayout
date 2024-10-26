@@ -3,21 +3,21 @@ PREAMBLE = (
     "You need to ensure that the generated layout looks realistic, with elements well aligned and avoiding unnecessary overlap.\n"
     "Task Description: {}\n"
     "Layout Domain: {} layout\n"
-    "Canvas Size: canvas width is {}px, canvas height is {}px"
+    "Canvas Size: canvas width is {}units, canvas height is {}units"
 )
 
 HTML_PREFIX = """<html>
 <body>
-<div class="canvas" style="left: 0px; top: 0px; width: {}px; height: {}px"></div>
+<div class="canvas" style="left: 0units; top: 0units; width: {}units; height: {}units"></div>
 """
 
 HTML_SUFFIX = """</body>
 </html>"""
 
-HTML_TEMPLATE = """<div class="{}" style="left: {}px; top: {}px; width: {}px; height: {}px"></div>
+HTML_TEMPLATE = """<div class="{}" style="left: {}units; top: {}units; width: {}units; height: {}units"></div>
 """
 
-HTML_TEMPLATE_WITH_INDEX = """<div class="{}" style="index: {}; left: {}px; top: {}px; width: {}px; height: {}px"></div>
+HTML_TEMPLATE_WITH_INDEX = """<div class="{}" style="index: {}; left: {}units; top: {}units; width: {}units; height: {}units"></div>
 """
 
 
@@ -156,10 +156,10 @@ class SizedElementSerializer(Serializer):
     task_type = "generation conditioned on given element types and sizes"
     constraint_type = ["Element Type and Size Constraint: "]
     HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN = (
-        '<div class="{}" style="width: {}px; height: {}px"></div>\n'
+        '<div class="{}" style="width: {}units; height: {}units"></div>\n'
     )
     HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN_WITH_INDEX = (
-        '<div class="{}" style="index: {}; width: {}px; height: {}px"></div>\n'
+        '<div class="{}" style="index: {}; width: {}units; height: {}units"></div>\n'
     )
 
     def _build_sequence_input(self, data):

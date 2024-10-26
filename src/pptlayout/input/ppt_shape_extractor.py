@@ -1,11 +1,4 @@
-import os
-
-from utils import (
-    convert_ltwh_to_ltrb,
-    get_fill_color,
-    get_slide_size,
-    map_shape_type_to_label,
-)
+from utils import convert_ltwh_to_ltrb, get_slide_size, map_shape_type_to_label
 
 
 class SlideShapeExtractor:
@@ -19,18 +12,20 @@ class SlideShapeExtractor:
         self.slide_number = slide_number
         self.shapes = self._extract_shapes()
 
+    # return a list of shape classes
     def _extract_shapes(self) -> list:
         shapes = []
         for shape in self.slide.shapes:
             shapes.append(shape)
         return shapes
 
-    def extract_shapes(self):
+    def shapes_to_list(self) -> list:
+        shapes = []
         for i, shape in enumerate(self.shapes):
             slide_number = self.slide_number
 
             try:
-                shape_type = shape.shape_type
+                shape_type = str(shape.shape_type)
             except AttributeError:
                 shape_type = ""
 
@@ -59,21 +54,18 @@ class SlideShapeExtractor:
             except AttributeError as e:
                 print(f"Error: {e}")
 
-            if hasattr(shape, "fill"):
-                fill_color = get_fill_color(shape)
-            else:
-                fill_color = ""
-
-            yield (
-                slide_number,
-                shape_type,
-                shape_index,
-                left_position,
-                top_position,
-                width,
-                height,
-                fill_color,
+            shapes.append(
+                [
+                    slide_number,
+                    shape_type,
+                    shape_index,
+                    left_position,
+                    top_position,
+                    width,
+                    height,
+                ]
             )
+        return [shapes]
 
 
 class InputFormatter:
@@ -81,6 +73,17 @@ class InputFormatter:
         self.label = map_shape_type_to_label(data[1])
         # self.label = str(data[1])
         self.bounding_box = convert_ltwh_to_ltrb([data[3], data[4], data[5], data[6]])
+
+
+HEADER = [
+    "Slide Number",
+    "Shape Type",
+    "Shape Index",
+    "Left Position",
+    "Top Position",
+    "Width",
+    "Height",
+]
 
 
 class PowerPointShapeExtractor:
@@ -91,25 +94,15 @@ class PowerPointShapeExtractor:
 
     def __init__(self, presentation):
         self.presentation = presentation
-        self.slides = self._extract_slides()
+        self.slides = self.presentation.slides
         self.width, self.height = get_slide_size(self.presentation)
 
-    def _extract_slides(self) -> list:
+    # return [[shape1, shape2, ...], [shape1, shape2, ...], ...]
+    def extract_shapes(self) -> list:
         slides = []
-        for i, slide in enumerate(self.presentation.slides):
-            slides.append(SlideShapeExtractor(slide, i + 1))
+        for i, slide in enumerate(self.slides):
+            slide_shapes = []
+            slide_extractor = SlideShapeExtractor(slide, i)
+            slide_shapes = slide_extractor.shapes_to_list()
+            slides.extend(slide_shapes)
         return slides
-
-    def extract_shapes_to_csv(self, output_dir: str, output_file: str = "shapes.csv"):
-        output_file = os.path.join(output_dir, output_file)
-        if not os.path.exists(output_dir):
-            print(f"Creating directory: {output_dir}")
-            os.makedirs(output_dir)
-        with open(output_file, "w") as f:
-            f.write(
-                "Slide Number, Shape Type, Shape Index, Left Position, Top Position, Width, Height, Fill color\n"
-            )
-            for slide in self.slides:
-                shapes = slide.extract_shapes()
-                for shape in shapes:
-                    f.write(",".join(map(str, shape)) + "\n")

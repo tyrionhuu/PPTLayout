@@ -24,4 +24,6 @@ def load_presentation():
 def test_powerpoint_shape_extractor(load_presentation):
     ppt = load_presentation
     extractor = PowerPointShapeExtractor(ppt)
-    extractor.extract_shapes_to_csv(ABSOLUTE_PATH + "/output", "test.csv")
+    shapes = extractor.extract_shapes()
+    for slide in shapes:
+        print(slide)

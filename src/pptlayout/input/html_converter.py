@@ -1,5 +1,7 @@
+from utils import get_slide_size
+
 PREAMBLE = (
-    "Please generate a PowerPoint slide layout based on the provided details. "
+    "Please generate a PowerPoint slide layout based on the provided details."
     "Ensure that the layout is visually appealing, with well-aligned elements and no unnecessary overlapping content.\n"
     "Task Description: {}\n"
     "Layout Domain: {} slide layout\n"
@@ -26,7 +28,6 @@ class Serializer:
         self,
         input_format: str,
         output_format: str,
-        index2label: dict,
         canvas_width: int,
         canvas_height: int,
         add_index_token: bool = True,
@@ -37,7 +38,6 @@ class Serializer:
     ):
         self.input_format = input_format
         self.output_format = output_format
-        self.index2label = index2label
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
         self.add_index_token = add_index_token
@@ -74,7 +74,7 @@ class Serializer:
         tokens = []
 
         for index in range(len(labels)):
-            label = self.index2label[int(labels[index])]
+            label = labels[index]
             bounding_box = bounding_boxes[index].tolist()
             tokens.append(label)
             if self.add_index_token:
@@ -91,7 +91,7 @@ class Serializer:
         _TEMPLATE = HTML_TEMPLATE_WITH_INDEX if self.add_index_token else HTML_TEMPLATE
 
         for index in range(len(labels)):
-            label = self.index2label[int(labels[index])]
+            label = labels[index]
             bounding_box = bounding_boxes[index].tolist()
             element = [label]
             if self.add_index_token:
@@ -114,14 +114,14 @@ class BasicElementSerializer(Serializer):
         labels = data["labels"]
         tokens = []
 
-        for idx in range(len(labels)):
-            label = self.index2label[int(labels[idx])]
+        for index in range(len(labels)):
+            label = labels[index]
             tokens.append(label)
             if self.add_index_token:
-                tokens.append(str(idx))
+                tokens.append(str(index))
             if self.add_unknown_token:
                 tokens += [self.unknown_token] * 4
-            if self.add_separation_token and idx < len(labels) - 1:
+            if self.add_separation_token and index < len(labels) - 1:
                 tokens.append(self.separation_token)
         return " ".join(tokens)
 
@@ -137,11 +137,11 @@ class BasicElementSerializer(Serializer):
         else:
             _TEMPLATE = self.HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN
 
-        for idx in range(len(labels)):
-            label = self.index2label[int(labels[idx])]
+        for index in range(len(labels)):
+            label = labels[index]
             element = [label]
             if self.add_index_token:
-                element.append(str(idx))
+                element.append(str(index))
             if self.add_unknown_token:
                 element += [self.unknown_token] * 4
             htmls.append(_TEMPLATE.format(*element))
@@ -168,7 +168,7 @@ class SizedElementSerializer(Serializer):
         tokens = []
 
         for index in range(len(labels)):
-            label = self.index2label[int(labels[index])]
+            label = labels[index]
             bounding_box = bounding_boxes[index].tolist()
             tokens.append(label)
             if self.add_index_token:
@@ -194,7 +194,7 @@ class SizedElementSerializer(Serializer):
             _TEMPLATE = self.HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN
 
         for index in range(len(labels)):
-            label = self.index2label[int(labels[index])]
+            label = labels[index]
             bounding_box = bounding_boxes[index].tolist()
             element = [label]
             if self.add_index_token:
@@ -208,3 +208,38 @@ class SizedElementSerializer(Serializer):
 
     def build_input(self, data):
         return self.constraint_type[0] + super().build_input(data)
+
+
+SERIALIZER_MAP = {
+    "gent": BasicElementSerializer,
+    "gents": SizedElementSerializer,
+    # "genr": GenRelationSerializer,
+    # "completion": CompletionSerializer,
+    # "refinement": RefinementSerializer,
+    # "content": ContentAwareSerializer,
+    # "text": TextToLayoutSerializer,
+}
+
+
+def create_serializer(
+    dataset,
+    task,
+    input_format,
+    output_format,
+    add_index_token,
+    add_separation_token,
+    add_unknown_token,
+    presentation,
+):
+    serializer_class = SERIALIZER_MAP[task]
+    canvas_width, canvas_height = get_slide_size(presentation)
+    serializer = serializer_class(
+        input_format=input_format,
+        output_format=output_format,
+        canvas_width=canvas_width,
+        canvas_height=canvas_height,
+        add_index_token=add_index_token,
+        add_sep_token=add_separation_token,
+        add_unk_token=add_unknown_token,
+    )
+    return serializer

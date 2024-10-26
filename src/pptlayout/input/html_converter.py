@@ -1,9 +1,9 @@
 PREAMBLE = (
-    "Please generate a layout based on the given information. "
-    "You need to ensure that the generated layout looks realistic, with elements well aligned and avoiding unnecessary overlap.\n"
+    "Please generate a PowerPoint slide layout based on the provided details. "
+    "Ensure that the layout is visually appealing, with well-aligned elements and no unnecessary overlapping content.\n"
     "Task Description: {}\n"
-    "Layout Domain: {} layout\n"
-    "Canvas Size: canvas width is {}units, canvas height is {}units"
+    "Layout Domain: {} slide layout\n"
+    "Slide Dimensions: width is {} units, height is {} units"
 )
 
 HTML_PREFIX = """<html>

@@ -1,11 +1,6 @@
 import os
-import sys
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
-)
-
-from utils import (  # noqa: E402;
+from utils import (
     convert_ltwh_to_ltrb,
     get_fill_color,
     get_slide_size,

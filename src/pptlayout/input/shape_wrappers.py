@@ -15,15 +15,7 @@ media clip – video or audio
 
 """
 
-import os
-import sys
-
 from tabulate import tabulate
-
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
-)
-
 from utils import get_fill_color  # noqa: E402
 
 

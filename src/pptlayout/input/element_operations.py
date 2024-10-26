@@ -1,24 +1,13 @@
 import copy
 import math
-import os
 import random
-import sys
 from itertools import combinations, product
 
 import clip
 import cv2
 import numpy as np
 import torch
-
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
-)
-
-from utils import (  # noqa: E402
-    decapulate,
-    detect_location_relation,
-    detect_size_relation,
-)
+from utils import decapulate, detect_location_relation, detect_size_relation
 
 
 class ShuffleElements:

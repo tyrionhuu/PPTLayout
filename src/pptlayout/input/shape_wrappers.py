@@ -18,6 +18,8 @@ media clip – video or audio
 import os
 import sys
 
+from tabulate import tabulate
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
 )
@@ -61,6 +63,7 @@ class BaseShapeWrapper:
 
     def describe_self(self) -> str:
         content = ""
+        # content += str(self.shape_type) if self.shape_type is not None else ""
         content += self.shape_description if self.shape_description is not None else ""
         content += self.size_info if self.size_info is not None else ""
         content += self.text_info if self.text_info is not None else ""
@@ -104,11 +107,11 @@ class TableWrapper(BaseShapeWrapper):
     @property
     def text_info(self) -> str:
         content = "Table:\n"
+        table_data = []
         for row in self.rows:
-            content += "\t"
-            for cell in row.cells:
-                content += f"{cell.text}\t"
-            content += "\n"
+            table_data.append([cell.text for cell in row.cells])
+        content += tabulate(table_data, tablefmt="grid")
+        content += "\n"
         return content
 
     @property

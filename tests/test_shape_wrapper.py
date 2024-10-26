@@ -70,6 +70,7 @@ def test_base_shape_wrapper():
 def test_picture_wrapper(load_presentation):
     """Test the PictureWrapper with pictures from the third slide."""
     # Get the third slide (index 2 since it's zero-based)
+    print("\nTesting Picture Wrapper:")
     slide = load_presentation.slides[2]
 
     picture_wrappers = []
@@ -113,7 +114,7 @@ def test_table_wrapper(load_presentation):
     assert len(table_wrappers) > 0, "No tables found on this slide."
 
     for idx, wrapper in enumerate(table_wrappers):
-        print(f"Testing Table Wrapper {idx + 1}:")
+        print(f"\nTesting Table Wrapper {idx + 1}:")
         print(wrapper)
 
         # Check if the description contains "Table"

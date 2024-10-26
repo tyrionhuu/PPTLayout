@@ -5,7 +5,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/pptlayout/input"))
 )
 
-from utils import get_fill_color  # noqa: E402
+from utils import get_fill_color, get_slide_size  # noqa: E402
 
 
 class SlideShapeExtractor:
@@ -85,6 +85,7 @@ class PowerPointShapeExtractor:
     def __init__(self, presentation):
         self.presentation = presentation
         self.slides = self._extract_slides()
+        self.width, self.height = get_slide_size(self.presentation)
 
     def _extract_slides(self) -> list:
         slides = []

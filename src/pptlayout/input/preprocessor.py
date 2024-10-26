@@ -85,3 +85,32 @@ class BasicElementProcessor(Processor):
             sort_by_position_before_sort_by_label=sort_by_position_before_sort_by_label,
         )
         self.transform = transforms.Compose(self.transform_functions)
+
+
+class SizedElementProcessor(Processor):
+    return_keys = [
+        "labels",
+        "bboxes",
+        "gold_bboxes",
+        "discrete_bboxes",
+        "discrete_gold_bboxes",
+    ]
+
+    def __init__(
+        self,
+        index2label: dict,
+        canvas_width: int,
+        canvas_height: int,
+        sort_by_position: bool = False,
+        shuffle_before_sort_by_label: bool = True,
+        sort_by_position_before_sort_by_label: bool = False,
+    ):
+        super().__init__(
+            index2label=index2label,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            sort_by_position=sort_by_position,
+            shuffle_before_sort_by_label=shuffle_before_sort_by_label,
+            sort_by_position_before_sort_by_label=sort_by_position_before_sort_by_label,
+        )
+        self.transform = transforms.Compose(self.transform_functions)

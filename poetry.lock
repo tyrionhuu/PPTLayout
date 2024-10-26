@@ -2481,22 +2481,6 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "mirrors"
 
 [[package]]
-name = "transforms"
-version = "0.2.1"
-description = "Python transforms"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "transforms-0.2.1-py3-none-any.whl", hash = "sha256:2159892daec3d62d894bc575a64612509b7d1733418eb04bc58812257dcd3b2e"},
-    {file = "transforms-0.2.1.tar.gz", hash = "sha256:da1076d7762337b2c654db3e45dd1a7fb53794df7610a8b19a63e994cec43964"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
-reference = "mirrors"
-
-[[package]]
 name = "triton"
 version = "3.1.0"
 description = "A language and compiler for custom Deep Learning operations"
@@ -2620,4 +2604,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.11"
-content-hash = "d602b8224d20965b9ce953a58385d21efd4cf50e92aef59037b0e38fb44b0f8b"
+content-hash = "5f7141b1285f98c6557e2a69a509583cac160b133b52744519d9c5c20c4c2e8b"

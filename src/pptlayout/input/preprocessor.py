@@ -90,10 +90,10 @@ class BasicElementProcessor(Processor):
 class SizedElementProcessor(Processor):
     return_keys = [
         "labels",
-        "bboxes",
-        "gold_bboxes",
-        "discrete_bboxes",
-        "discrete_gold_bboxes",
+        "bounding_boxes",
+        "gold_bounding_boxes",
+        "discrete_bounding_boxes",
+        "discrete_gold_bounding_boxes",
     ]
 
     def __init__(

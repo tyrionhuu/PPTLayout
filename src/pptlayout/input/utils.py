@@ -91,7 +91,7 @@ ID2LABEL = {
 }
 
 
-def canvas_size(domain: str, pptx_path: str) -> tuple:
+def canvas_size(domain: str, pptx_path=None) -> tuple:
     if domain == "rico":
         return 90, 160
     if domain == "publaynet":
@@ -101,7 +101,13 @@ def canvas_size(domain: str, pptx_path: str) -> tuple:
     if domain == "webui":
         return 120, 120
     if domain == "ppt":
-        return get_slide_size(pptx_path)
+        if pptx_path is not None:
+            if not os.path.exists(pptx_path):
+                raise FileNotFoundError(f"{pptx_path} not found")
+            else:
+                return get_slide_size(pptx_path)
+        else:
+            raise ValueError("pptx_path must be provided for ppt domain")
     else:
         raise ValueError(f"Invalid domain: {domain}")
 

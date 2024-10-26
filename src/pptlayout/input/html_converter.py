@@ -1,5 +1,5 @@
 from transforms import RelationTypes
-from utils import CANVAS_SIZE, ID2LABEL, LAYOUT_DOMAIN
+from utils import ID2LABEL, LAYOUT_DOMAIN, canvas_size
 
 PREAMBLE = (
     "Please generate a layout based on the given information. "
@@ -440,10 +440,11 @@ def create_serializer(
     add_index_token,
     add_separation_token,
     add_unknown_token,
+    pptx_path=None,
 ):
     serializer_cls = SERIALIZER_MAP[task]
     index2label = ID2LABEL[dataset]
-    canvas_width, canvas_height = CANVAS_SIZE[dataset]
+    canvas_width, canvas_height = canvas_size(dataset, pptx_path)
     serializer = serializer_cls(
         input_format=input_format,
         output_format=output_format,
@@ -465,10 +466,13 @@ def build_prompt(
     max_length=8000,
     separator_in_samples="\n",
     separator_between_samples="\n\n",
+    pptx_path=None,
 ):
     prompt = [
         PREAMBLE.format(
-            serializer.task_type, LAYOUT_DOMAIN[dataset], *CANVAS_SIZE[dataset]
+            serializer.task_type,
+            LAYOUT_DOMAIN[dataset],
+            *canvas_size(dataset, pptx_path),
         )
     ]
     for i in range(len(exemplars)):

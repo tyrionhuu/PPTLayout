@@ -7,6 +7,7 @@ from operators import (
     AddCanvasElement,
     AddGaussianNoise,
     AddRelation,
+    CLIPTextEncoder,
     DiscretizeBoundingBox,
     LabelDictSort,
     LexicographicSort,
@@ -15,6 +16,7 @@ from operators import (
 )
 from pandas import DataFrame
 from torchvision import transforms
+from utils import clean_text
 
 
 class Processor:
@@ -332,3 +334,54 @@ class ContentAwareProcessor(Processor):
             }
 
         return super().__call__(data)
+
+
+class TextToLayoutProcessor(Processor):
+    return_keys = [
+        "labels",
+        "bounding_boxes",
+        "text",
+        "embedding",
+    ]
+
+    def __init__(
+        self,
+        index2label: dict,
+        canvas_width: int,
+        canvas_height: int,
+    ):
+        self.index2label = index2label
+        self.label2index = {v: k for k, v in self.index2label.items()}
+        self.canvas_width = canvas_width
+        self.canvas_height = canvas_height
+        self.text_encoder = CLIPTextEncoder()
+
+    def _scale(self, original_width, elements_):
+        elements = copy.deepcopy(elements_)
+        ratio = self.canvas_width / original_width
+        for i in range(len(elements)):
+            elements[i]["position"][0] = int(ratio * elements[i]["position"][0])
+            elements[i]["position"][1] = int(ratio * elements[i]["position"][1])
+            elements[i]["position"][2] = int(ratio * elements[i]["position"][2])
+            elements[i]["position"][3] = int(ratio * elements[i]["position"][3])
+        return elements
+
+    def __call__(self, data):
+        text = clean_text(data["text"])
+        embedding = self.text_encoder(clean_text(data["text"], remove_summary=True))
+        original_width = data["canvas_width"]
+        elements = data["elements"]
+        elements = self._scale(original_width, elements)
+        elements = sorted(elements, key=lambda x: (x["position"][1], x["position"][0]))
+
+        labels = [self.label2index[element["type"]] for element in elements]
+        labels = torch.tensor(labels)
+        bounding_boxes = [element["position"] for element in elements]
+        bounding_boxes = torch.tensor(bounding_boxes)
+        return {
+            "text": text,
+            "embedding": embedding,
+            "labels": labels,
+            "discrete_gold_bounding_boxes": bounding_boxes,
+            "discrete_bounding_boxes": bounding_boxes,
+        }

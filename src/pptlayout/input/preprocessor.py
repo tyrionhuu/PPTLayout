@@ -4,6 +4,7 @@ import random
 import cv2
 import torch
 from operators import (
+    ID2LABEL,
     AddCanvasElement,
     AddGaussianNoise,
     AddRelation,
@@ -16,7 +17,7 @@ from operators import (
 )
 from pandas import DataFrame
 from torchvision import transforms
-from utils import clean_text
+from utils import canvas_size, clean_text
 
 
 class Processor:
@@ -385,3 +386,28 @@ class TextToLayoutProcessor(Processor):
             "discrete_gold_bounding_boxes": bounding_boxes,
             "discrete_bounding_boxes": bounding_boxes,
         }
+
+
+PROCESSOR_MAP = {
+    "gent": BasicElementProcessor,
+    "gents": SizedElementProcessor,
+    "genr": RelationalElementProcessor,
+    "completion": CompletionProcessor,
+    "refinement": RefinementProcessor,
+    "content": ContentAwareProcessor,
+    "text": TextToLayoutProcessor,
+}
+
+
+def create_processor(dataset, task, pptx_path=None, *args, **kwargs):
+    processor_class = PROCESSOR_MAP[task]
+    index2label = ID2LABEL[dataset]
+    canvas_width, canvas_height = canvas_size(dataset, pptx_path)
+    processor = processor_class(
+        index2label=index2label,
+        canvas_width=canvas_width,
+        canvas_height=canvas_height,
+        *args,
+        **kwargs,
+    )
+    return processor

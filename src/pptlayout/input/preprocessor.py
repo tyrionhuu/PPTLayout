@@ -1,5 +1,8 @@
 import copy
+import random
 
+import cv2
+import torch
 from operators import (
     AddCanvasElement,
     AddGaussianNoise,
@@ -283,3 +286,49 @@ class ContentAwareProcessor(Processor):
             filter_threshold
         )
         self.possible_labels: list = []
+
+    def _normalize_bounding_boxes(self, bounding_boxes):
+        bounding_boxes = bounding_boxes.float()
+        bounding_boxes[:, 0::2] /= self.original_width
+        bounding_boxes[:, 1::2] /= self.original_height
+        return bounding_boxes
+
+    def __call__(self, filename, index, split):
+        saliency_map = cv2.imread(filename)
+        content_bounding_boxes = self.saliency_map_to_bounding_boxes(saliency_map)
+        if len(content_bounding_boxes) == 0:
+            return None
+        content_bounding_boxes = self._normalize_bounding_boxes(content_bounding_boxes)
+
+        if split == "train":
+            _metadata = self.metadata[
+                self.metadata["poster_path"] == f"train/{index}.png"
+            ][self.metadata["class_element"] > 0]
+            labels = torch.tensor(list(map(int, _metadata["class_element"])))
+            bounding_boxes = torch.tensor(list(map(eval, _metadata["bounding_box"])))
+            if len(labels) == 0:
+                return None
+            bounding_boxes[:, 2] -= bounding_boxes[:, 0]
+            bounding_boxes[:, 3] -= bounding_boxes[:, 1]
+            bounding_boxes = self._normalize_bounding_boxes(bounding_boxes)
+            if len(labels) <= self.max_element_numbers:
+                self.possible_labels = labels
+
+            data = {
+                "index": index,
+                "labels": labels,
+                "bounding_boxes": bounding_boxes,
+                "content_bounding_boxes": content_bounding_boxes,
+            }
+        else:
+            if len(self.possible_labels) == 0:
+                raise RuntimeError("Please process training data first")
+
+            labels = random.choice(self.possible_labels)
+            data = {
+                "index": index,
+                "labels": labels,
+                "content_bounding_boxes": content_bounding_boxes,
+            }
+
+        return super().__call__(data)

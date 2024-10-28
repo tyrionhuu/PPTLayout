@@ -90,6 +90,8 @@ ID2LABEL = {
     },
 }
 
+DEFAULT_SIZE = (6868000, 12192000)
+
 
 def canvas_size(domain: str, pptx_path=None) -> tuple:
     if domain == "rico":
@@ -107,7 +109,7 @@ def canvas_size(domain: str, pptx_path=None) -> tuple:
             else:
                 return get_slide_size(pptx_path)
         else:
-            raise ValueError("pptx_path must be provided for ppt domain")
+            return DEFAULT_SIZE
     else:
         raise ValueError(f"Invalid domain: {domain}")
 

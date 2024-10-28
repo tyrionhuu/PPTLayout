@@ -1,13 +1,5 @@
 from transforms import RelationTypes
-from utils import ID2LABEL, LAYOUT_DOMAIN, canvas_size
-
-PREAMBLE = (
-    "Please generate a layout based on the given information. "
-    "You need to ensure that the generated layout looks realistic, with elements well aligned and avoiding unnecessary overlap.\n"
-    "Task Description: {}\n"
-    "Layout Domain: {} layout\n"
-    "Canvas Size: canvas width is {}px, canvas height is {}px"
-)
+from utils import ID2LABEL, canvas_size
 
 HTML_PREFIX = """<html>
 <body>
@@ -458,72 +450,41 @@ def create_serializer(
     return serializer
 
 
-def build_prompt(
-    serializer,
-    exemplars,
-    test_data,
-    dataset,
-    max_length=8000,
-    separator_in_samples="\n",
-    separator_between_samples="\n\n",
-    pptx_path=None,
-):
-    prompt = [
-        PREAMBLE.format(
-            serializer.task_type,
-            LAYOUT_DOMAIN[dataset],
-            *canvas_size(dataset, pptx_path),
-        )
-    ]
-    for i in range(len(exemplars)):
-        _prompt = (
-            serializer.build_input(exemplars[i])
-            + separator_in_samples
-            + serializer.build_output(exemplars[i])
-        )
-        if len(separator_between_samples.join(prompt) + _prompt) <= max_length:
-            prompt.append(_prompt)
-        else:
-            break
-    prompt.append(serializer.build_input(test_data) + separator_in_samples)
-    return separator_between_samples.join(prompt)
+# if __name__ == "__main__":
+#     import torch
 
+#     ls = RefinementSerializer(
+#         input_format="sequence",
+#         output_format="html",
+#         index2label=ID2LABEL["publaynet"],
+#         canvas_width=120,
+#         canvas_height=160,
+#         add_separation_token=True,
+#         add_unknown_token=False,
+#         add_index_token=True,
+#     )
+#     labels = torch.tensor([4, 4, 1, 1, 1, 1])
+#     bounding_boxes = torch.tensor(
+#         [
+#             [29, 14, 59, 2],
+#             [10, 18, 99, 57],
+#             [10, 79, 99, 4],
+#             [10, 85, 99, 7],
+#             [10, 99, 47, 50],
+#             [61, 99, 47, 50],
+#         ]
+#     )
 
-if __name__ == "__main__":
-    import torch
-
-    ls = RefinementSerializer(
-        input_format="sequence",
-        output_format="html",
-        index2label=ID2LABEL["publaynet"],
-        canvas_width=120,
-        canvas_height=160,
-        add_separation_token=True,
-        add_unknown_token=False,
-        add_index_token=True,
-    )
-    labels = torch.tensor([4, 4, 1, 1, 1, 1])
-    bounding_boxes = torch.tensor(
-        [
-            [29, 14, 59, 2],
-            [10, 18, 99, 57],
-            [10, 79, 99, 4],
-            [10, 85, 99, 7],
-            [10, 99, 47, 50],
-            [61, 99, 47, 50],
-        ]
-    )
-
-    rearranged_labels = torch.tensor([1, 4, 1, 4, 1, 1])
-    relations = torch.tensor([[4, 1, 0, 1, 4], [1, 2, 1, 3, 2]])
-    data = {
-        "labels": labels,
-        "discrete_bounding_boxes": bounding_boxes,
-        "discrete_gold_bounding_boxes": bounding_boxes,
-        "relations": relations,
-        "rearranged_labels": rearranged_labels,
-    }
-    print("--------")
-    print(ls.build_input(data))
-    print("--------")
-    print(ls.build_output(data))
+#     rearranged_labels = torch.tensor([1, 4, 1, 4, 1, 1])
+#     relations = torch.tensor([[4, 1, 0, 1, 4], [1, 2, 1, 3, 2]])
+#     data = {
+#         "labels": labels,
+#         "discrete_bounding_boxes": bounding_boxes,
+#         "discrete_gold_bounding_boxes": bounding_boxes,
+#         "relations": relations,
+#         "rearranged_labels": rearranged_labels,
+#     }
+#     print("--------")
+#     print(ls.build_input(data))
+#     print("--------")
+#     print(ls.build_output(data))

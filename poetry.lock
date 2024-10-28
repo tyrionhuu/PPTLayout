@@ -2646,4 +2646,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.11"
-content-hash = "abc5086ae591e76dca64131267bbe8c2601ce8811b8e037da143800bdde53ab6"
+content-hash = "cd6f754e60479c1bd3473cb544b8ff5135544cbfe88ecc9910e049afae8ced7b"

@@ -300,7 +300,7 @@ class RelationTypes:
         return self._index2type
 
 
-class SaliencyMapToBBoxes:
+class SaliencyMapToBoundingBoxes:
     def __init__(
         self,
         threshold: int,

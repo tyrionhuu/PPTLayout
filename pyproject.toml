@@ -30,6 +30,7 @@ opencv-python = "^4.10.0.84"
 torch = "^2.5.0"
 black = {extras = ["jupyter"], version = "^24.10.0"}
 pandas = "^2.2.3"
+scipy = "^1.14.1"
 
 [[tool.poetry.source]]
 name = "mirrors"

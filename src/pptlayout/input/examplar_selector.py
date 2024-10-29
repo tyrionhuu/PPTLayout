@@ -2,7 +2,12 @@ import random
 
 import cv2
 import numpy as np
-from utils import canvas_size, labels_bounding_boxes_similarity, labels_similarity
+from utils import (
+    canvas_size,
+    labels_bounding_boxes_similarity,
+    labels_similarity,
+    normalize_weights,
+)
 
 
 class ExemplarSelector:
@@ -170,12 +175,55 @@ class TextToLayoutExemplarSelector(ExemplarSelector):
 
 
 class PowerPointExemplarSelector(ExemplarSelector):
+    label_weight = 5
+    bounding_box_weight = 5
+    depth_weight = 1
+    rotation_weight = 1
+    alignment_weight = 1
+
+    (
+        label_weight,
+        bounding_box_weight,
+        depth_weight,
+        rotation_weight,
+        alignment_weight,
+    ) = normalize_weights(
+        label_weight,
+        bounding_box_weight,
+        depth_weight,
+        rotation_weight,
+        alignment_weight,
+    )
+
     def __call__(self, test_data: dict):
         scores = []
         test_labels = test_data["labels"]
+        test_bounding_boxes = test_data["bounding_boxes"]
+        test_depth = test_data["depth"]
+        test_rotation = test_data["rotation"]
+        test_alignment = test_data["text_alignment"]
         for i in range(len(self.train_data)):
             train_labels = self.train_data[i]["labels"]
-            score = labels_similarity(train_labels, test_labels)
+            train_bounding_boxes = self.train_data[i]["bounding_boxes"]
+            train_depth = self.train_data[i]["depth"]
+            train_rotation = self.train_data[i]["rotation"]
+            train_alignment = self.train_data[i]["text_alignment"]
+            score = (
+                labels_similarity(train_labels, test_labels) * self.label_weight
+                + labels_bounding_boxes_similarity(
+                    train_labels,
+                    train_bounding_boxes,
+                    test_labels,
+                    test_bounding_boxes,
+                    self.label_weight,
+                    self.bounding_box_weight,
+                )
+                + (train_depth == test_depth).float().mean().item() * self.depth_weight
+                + (train_rotation == test_rotation).float().mean().item()
+                * self.rotation_weight
+                + (train_alignment == test_alignment).float().mean().item()
+                * self.alignment_weight
+            )
             scores.append([i, score])
         return self._retrieve_exemplars(scores)
 
@@ -188,6 +236,7 @@ SELECTOR_MAP = {
     "refinement": RefinementExemplarSelector,
     "content": ContentAwareExemplarSelector,
     "text": TextToLayoutExemplarSelector,
+    "ppt": PowerPointExemplarSelector,
 }
 
 

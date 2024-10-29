@@ -1,10 +1,12 @@
 import json
 import os
 import re
+from collections import Counter
 
 import pandas as pd
 import torch
 from pptx.enum.dml import MSO_FILL
+from scipy.optimize import linear_sum_assignment
 
 
 def get_fill_color(shape) -> str:
@@ -275,3 +277,59 @@ def powerpoint_dataset_json_converter(dir_path: str, input_file: str, output_fil
     # print(data_by_slide)
     write_pt(output_file, data_by_slide)
     return None
+
+
+def normalize_weights(*args):
+    total = sum(args)
+    return [arg / total for arg in args]
+
+
+def labels_similarity(labels_1, labels_2):
+    def _intersection(labels_1, labels_2):
+        cnt = 0
+        x = Counter(labels_1)
+        y = Counter(labels_2)
+        for k in x:
+            if k in y:
+                cnt += 2 * min(x[k], y[k])
+        return cnt
+
+    def _union(labels_1, labels_2):
+        return len(labels_1) + len(labels_2)
+
+    if isinstance(labels_1, torch.Tensor):
+        labels_1 = labels_1.tolist()
+    if isinstance(labels_2, torch.Tensor):
+        labels_2 = labels_2.tolist()
+    return _intersection(labels_1, labels_2) / _union(labels_1, labels_2)
+
+
+def bounding_boxes_similarity(
+    labels_1, bounding_boxes_1, labels_2, bounding_boxes_2, times=2
+):
+    """
+    bounding_boxes_1: M x 4
+    bounding_boxes_2: N x 4
+    distance: M x N
+    """
+    distance = torch.cdist(bounding_boxes_1, bounding_boxes_2) * times
+    distance = torch.pow(0.5, distance)
+    mask = labels_1.unsqueeze(-1) == labels_2.unsqueeze(0)
+    distance = distance * mask
+    row_ind, col_ind = linear_sum_assignment(-distance)
+    return distance[row_ind, col_ind].sum().item() / len(row_ind)
+
+
+def labels_bounding_boxes_similarity(
+    labels_1,
+    bounding_boxes_1,
+    labels_2,
+    bounding_boxes_2,
+    labels_weight,
+    bounding_boxes_weight,
+):
+    labels_sim = labels_similarity(labels_1, labels_2)
+    bounding_boxes_sim = bounding_boxes_similarity(
+        labels_1, bounding_boxes_1, labels_2, bounding_boxes_2
+    )
+    return labels_weight * labels_sim + bounding_boxes_weight * bounding_boxes_sim

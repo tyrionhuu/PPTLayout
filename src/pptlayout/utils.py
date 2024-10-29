@@ -260,8 +260,8 @@ def powerpoint_dataset_json_converter(
                 "slide_id": slide_id,
                 "elements": [
                     {
-                        "type": d["element_type"],
-                        "position": parse_float_string_list(d["position"]),
+                        "labels": LABEL2ID_PPT[d["element_type"]],
+                        "bounding_boxes": parse_float_string_list(d["position"]),
                         "depth": int(d["z-index"]),
                         "rotation": float(d["rotation"]),
                         "text_alignment": parse_int_string_list(d["alignment"]),

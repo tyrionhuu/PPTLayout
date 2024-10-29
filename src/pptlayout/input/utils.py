@@ -73,6 +73,7 @@ LABEL2ID_PPT = {
     "line": 4,
     "chart": 5,
     "table": 6,
+    "other": 7,
 }
 
 DEFAULT_SIZE = (6868000, 12192000)
@@ -216,8 +217,16 @@ def convert_ltwh_to_ltrb(bounding_box):
 
 
 # convert dataset.txt to dataset.json
-def powerpoint_dataset_json_converter(dir_path: str, input_file: str, output_file: str):
+def powerpoint_dataset_json_converter(
+    dir_path: str, input_file: str, output_file: str
+) -> list[dict]:
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"{dir_path} not found")
+
     input_file = os.path.join(dir_path, input_file)
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"{input_file} not found")
+
     output_file = os.path.join(dir_path, output_file)
 
     df = pd.read_csv(input_file, sep=r"\s+")
@@ -276,7 +285,7 @@ def powerpoint_dataset_json_converter(dir_path: str, input_file: str, output_fil
         )
     # print(data_by_slide)
     write_pt(output_file, data_by_slide)
-    return None
+    return data_by_slide
 
 
 def normalize_weights(*args):

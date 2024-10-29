@@ -102,7 +102,7 @@ def canvas_size(domain: str, pptx_path=None) -> tuple:
         return 102, 150
     if domain == "webui":
         return 120, 120
-    if domain == "ppt":
+    if domain == "pptlayout":
         if pptx_path is not None:
             if not os.path.exists(pptx_path):
                 raise FileNotFoundError(f"{pptx_path} not found")
@@ -123,6 +123,7 @@ LAYOUT_DOMAIN = {
     "publaynet": "document",
     "posterlayout": "poster",
     "webui": "web",
+    "pptlayout": "ppt",
 }
 
 

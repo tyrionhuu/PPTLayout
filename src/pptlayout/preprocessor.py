@@ -430,17 +430,17 @@ class PowerPointLayoutProcessor(Processor):
         discrete_bounding_boxes = bounding_boxes
         bounding_boxes = torch.tensor(bounding_boxes)
         for i in range(len(discrete_bounding_boxes)):
-            discrete_bounding_boxes[i]["bounding_boxes"][0] = int(
-                discrete_bounding_boxes[i]["bounding_boxes"][0] * self.canvas_width
+            discrete_bounding_boxes[i][0] = int(
+                discrete_bounding_boxes[i][0] * self.canvas_width
             )
-            discrete_bounding_boxes[i]["bounding_boxes"][1] = int(
-                discrete_bounding_boxes[i]["bounding_boxes"][1] * self.canvas_height
+            discrete_bounding_boxes[i][1] = int(
+                discrete_bounding_boxes[i][1] * self.canvas_height
             )
-            discrete_bounding_boxes[i]["bounding_boxes"][2] = int(
-                discrete_bounding_boxes[i]["bounding_boxes"][2] * self.canvas_width
+            discrete_bounding_boxes[i][2] = int(
+                discrete_bounding_boxes[i][2] * self.canvas_width
             )
-            discrete_bounding_boxes[i]["bounding_boxes"][3] = int(
-                discrete_bounding_boxes[i]["bounding_boxes"][3] * self.canvas_height
+            discrete_bounding_boxes[i][3] = int(
+                discrete_bounding_boxes[i][3] * self.canvas_height
             )
         return {
             "labels": labels,

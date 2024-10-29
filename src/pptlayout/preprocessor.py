@@ -16,7 +16,7 @@ from operators import (
 )
 from pandas import DataFrame
 from torchvision import transforms
-from utils import ID2LABEL, canvas_size, clean_text
+from utils import DEFAULT_SIZE, ID2LABEL, canvas_size, clean_text
 
 
 class Processor:
@@ -402,8 +402,8 @@ class PowerPointLayoutProcessor(Processor):
     def __init__(
         self,
         index2label: dict,
-        canvas_width: int,
-        canvas_height: int,
+        canvas_width: int = DEFAULT_SIZE[0],
+        canvas_height: int = DEFAULT_SIZE[1],
         sort_by_position: bool = False,
         shuffle_before_sort_by_label: bool = False,
         sort_by_position_before_sort_by_label: bool = True,
@@ -417,6 +417,41 @@ class PowerPointLayoutProcessor(Processor):
             sort_by_position_before_sort_by_label=sort_by_position_before_sort_by_label,
         )
         self.transform = transforms.Compose(self.transform_functions)
+
+    def __call__(self, data):
+        elements = data["elements"]
+        labels = torch.tensor([element["labels"] for element in elements])
+        depth = torch.tensor([element["depth"] for element in elements])
+        rotation = torch.tensor([element["rotation"] for element in elements])
+        text_alignment = torch.tensor(
+            [element["text_alignment"] for element in elements]
+        )
+        bounding_boxes = [element["bounding_boxes"] for element in elements]
+        discrete_bounding_boxes = bounding_boxes
+        bounding_boxes = torch.tensor(bounding_boxes)
+        for i in range(len(discrete_bounding_boxes)):
+            discrete_bounding_boxes[i]["bounding_boxes"][0] = int(
+                discrete_bounding_boxes[i]["bounding_boxes"][0] * self.canvas_width
+            )
+            discrete_bounding_boxes[i]["bounding_boxes"][1] = int(
+                discrete_bounding_boxes[i]["bounding_boxes"][1] * self.canvas_height
+            )
+            discrete_bounding_boxes[i]["bounding_boxes"][2] = int(
+                discrete_bounding_boxes[i]["bounding_boxes"][2] * self.canvas_width
+            )
+            discrete_bounding_boxes[i]["bounding_boxes"][3] = int(
+                discrete_bounding_boxes[i]["bounding_boxes"][3] * self.canvas_height
+            )
+        return {
+            "labels": labels,
+            "bounding_boxes": bounding_boxes,
+            "gold_bounding_boxes": bounding_boxes,
+            "discrete_bounding_boxes": discrete_bounding_boxes,
+            "discrete_gold_bounding_boxes": discrete_bounding_boxes,
+            "depth": depth,
+            "rotation": rotation,
+            "text_alignment": text_alignment,
+        }
 
 
 PROCESSOR_MAP = {

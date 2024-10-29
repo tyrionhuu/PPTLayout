@@ -333,3 +333,17 @@ def labels_bounding_boxes_similarity(
         labels_1, bounding_boxes_1, labels_2, bounding_boxes_2
     )
     return labels_weight * labels_sim + bounding_boxes_weight * bounding_boxes_sim
+
+
+def depth_similarity(depth_1: int, depth_2: int) -> int:
+    return 1 if depth_1 == depth_2 else 0
+
+
+def rotation_similarity(rotation_1: float, rotation_2: float) -> float:
+    return 1 - abs(rotation_1 - rotation_2) / 360
+
+
+def alignment_similarity(alignment_1: list[int], alignment_2: list[int]) -> float:
+    return sum(
+        [1 if a1 == a2 else 0 for a1, a2 in zip(alignment_1, alignment_2)]
+    ) / len(alignment_1)

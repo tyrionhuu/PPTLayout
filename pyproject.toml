@@ -29,6 +29,7 @@ clip = "^0.2.0"
 opencv-python = "^4.10.0.84"
 torch = "^2.5.0"
 black = {extras = ["jupyter"], version = "^24.10.0"}
+pandas = "^2.2.3"
 
 [[tool.poetry.source]]
 name = "mirrors"

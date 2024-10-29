@@ -169,6 +169,17 @@ class TextToLayoutExemplarSelector(ExemplarSelector):
         return self._retrieve_exemplars(scores)
 
 
+class PowerPointExemplarSelector(ExemplarSelector):
+    def __call__(self, test_data: dict):
+        scores = []
+        test_labels = test_data["labels"]
+        for i in range(len(self.train_data)):
+            train_labels = self.train_data[i]["labels"]
+            score = labels_similarity(train_labels, test_labels)
+            scores.append([i, score])
+        return self._retrieve_exemplars(scores)
+
+
 SELECTOR_MAP = {
     "gent": BasicElementExemplarSelector,
     "gents": SizedElementExemplarSelector,

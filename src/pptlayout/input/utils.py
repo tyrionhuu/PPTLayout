@@ -2,6 +2,7 @@ import json
 import os
 import re
 
+import pandas as pd
 import torch
 from pptx.enum.dml import MSO_FILL
 
@@ -228,3 +229,16 @@ def convert_ltwh_to_ltrb(bounding_box):
     right = left + width
     bottom = top + height
     return torch.stack([left, top, right, bottom], axis=-1)
+
+
+# convert dataset.txt to dataset.json
+def powerpoint_dataset_json_converter(file_path: str, output_file: str) -> dict:
+    df = pd.read_csv(file_path, delim_whitespace=True)
+    grouped_data = (
+        df.groupby("slide_id").apply(lambda x: x.to_dict(orient="records")).to_dict()
+    )
+
+    json_data = json.dumps(grouped_data, indent=4)
+    with open(output_file, "w") as f:
+        f.write(json_data)
+    return grouped_data

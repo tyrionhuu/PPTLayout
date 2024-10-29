@@ -63,6 +63,16 @@ ID2LABEL = {
         8: "icon",
         9: "input",
     },
+    "pptlayout": {
+        0: "preset",
+        1: "freeform",
+        2: "text",
+        3: "picture",
+        4: "line",
+        5: "chart",
+        6: "table",
+        7: "other",
+    },
 }
 
 LABEL2ID_PPT = {

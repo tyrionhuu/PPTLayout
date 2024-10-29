@@ -230,62 +230,70 @@ def powerpoint_dataset_json_converter(
     output_file = os.path.join(dir_path, output_file)
 
     df = pd.read_csv(input_file, sep=r"\s+")
-    print(df.head())
+    # print(df.head())
     grouped_data = (
         df.groupby("slide_id")
         .apply(lambda x: x.to_dict(orient="records"), include_groups=False)
         .to_dict()
     )
 
-    def parse_float_string_list(string: str) -> list[float]:
-        return [float(x) for x in string.split(",")]
-
-    def parse_int_string_list(string: str) -> list[int]:
-        return [int(x) for x in string.split(",")]
-
-    def get_bounding_box_lists(data: list[dict]) -> torch.Tensor:
-        original_lists = [d["position"] for d in data]
-        float_lists = [parse_float_string_list(d) for d in original_lists]
-        normalized_lists = []
-        for list in float_lists:
-            normalized_lists.append([d / 100 for d in list])
-        return torch.tensor(normalized_lists)
-
-    def get_labels_list(data: list[dict]) -> torch.Tensor:
-        original_list = [d["element_type"] for d in data]
-        id_list = [LABEL2ID_PPT[d] for d in original_list]
-        return torch.tensor(id_list)
-
-    def get_depth_list(data: list[dict]) -> torch.Tensor:
-        original_list = [d["z-index"] for d in data]
-        int_list = [int(d) for d in original_list]
-        return torch.tensor(int_list)
-
-    def get_rotation_list(data: list[dict]) -> torch.Tensor:
-        original_list = [d["rotation"] for d in data]
-        float_list = [float(d) for d in original_list]
-        return torch.tensor(float_list)
-
-    def get_alignment_lists(data: list[dict]) -> torch.Tensor:
-        original_lists = [d["alignment"] for d in data]
-        int_lists = [parse_int_string_list(d) for d in original_lists]
-        return torch.tensor(int_lists)
-
     data_by_slide = []
     for slide_id, data in grouped_data.items():
-        data_by_slide.append(
-            {
-                "slide_id": slide_id,
-                "bounding_boxes": get_bounding_box_lists(data),
-                "labels": get_labels_list(data),
-                "depth": get_depth_list(data),
-                "rotation": get_rotation_list(data),
-                "text_alignment": get_alignment_lists(data),
-            }
-        )
-    # print(data_by_slide)
-    write_pt(output_file, data_by_slide)
+        slide_data = {"slide_id": slide_id, "elements": data}
+        data_by_slide.append(slide_data)
+
+    json.dump(data_by_slide, open(output_file, "w"))
     return data_by_slide
+
+    # def parse_float_string_list(string: str) -> list[float]:
+    #     return [float(x) for x in string.split(",")]
+
+    # def parse_int_string_list(string: str) -> list[int]:
+    #     return [int(x) for x in string.split(",")]
+
+    # def get_bounding_box_lists(data: list[dict]) -> torch.Tensor:
+    #     original_lists = [d["position"] for d in data]
+    #     float_lists = [parse_float_string_list(d) for d in original_lists]
+    #     normalized_lists = []
+    #     for list in float_lists:
+    #         normalized_lists.append([d / 100 for d in list])
+    #     return torch.tensor(normalized_lists)
+
+    # def get_labels_list(data: list[dict]) -> torch.Tensor:
+    #     original_list = [d["element_type"] for d in data]
+    #     id_list = [LABEL2ID_PPT[d] for d in original_list]
+    #     return torch.tensor(id_list)
+
+    # def get_depth_list(data: list[dict]) -> torch.Tensor:
+    #     original_list = [d["z-index"] for d in data]
+    #     int_list = [int(d) for d in original_list]
+    #     return torch.tensor(int_list)
+
+    # def get_rotation_list(data: list[dict]) -> torch.Tensor:
+    #     original_list = [d["rotation"] for d in data]
+    #     float_list = [float(d) for d in original_list]
+    #     return torch.tensor(float_list)
+
+    # def get_alignment_lists(data: list[dict]) -> torch.Tensor:
+    #     original_lists = [d["alignment"] for d in data]
+    #     int_lists = [parse_int_string_list(d) for d in original_lists]
+    #     return torch.tensor(int_lists)
+
+    # data_by_slide = []
+    # for slide_id, data in grouped_data.items():
+    #     data_by_slide.append(
+    #         {
+    #             "slide_id": slide_id,
+    #             "bounding_boxes": get_bounding_box_lists(data),
+    #             "labels": get_labels_list(data),
+    #             "depth": get_depth_list(data),
+    #             "rotation": get_rotation_list(data),
+    #             "text_alignment": get_alignment_lists(data),
+    #         }
+    #     )
+    # # print(data_by_slide)
+    # write_pt(output_file, data_by_slide)
+    # return data_by_slide
 
 
 def normalize_weights(*args):

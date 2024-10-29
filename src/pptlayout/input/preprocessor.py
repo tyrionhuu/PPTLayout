@@ -188,7 +188,7 @@ class CompletionProcessor(Processor):
         "discrete_gold_bounding_boxes",
     ]
 
-    def __inti__(
+    def __init__(
         self,
         index2label: dict,
         canvas_width: int,
@@ -388,6 +388,35 @@ class TextToLayoutProcessor(Processor):
         }
 
 
+class PowerPointLayoutProcessor(Processor):
+    return_keys = [
+        "labels",
+        "bounding_boxes",
+        "depth",
+        "rotation",
+        "text_alignment",
+    ]
+
+    def __init__(
+        self,
+        index2label: dict,
+        canvas_width: int,
+        canvas_height: int,
+        sort_by_position: bool = False,
+        shuffle_before_sort_by_label: bool = False,
+        sort_by_position_before_sort_by_label: bool = True,
+    ):
+        super().__init__(
+            index2label=index2label,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            sort_by_position=sort_by_position,
+            shuffle_before_sort_by_label=shuffle_before_sort_by_label,
+            sort_by_position_before_sort_by_label=sort_by_position_before_sort_by_label,
+        )
+        self.transform = transforms.Compose(self.transform_functions)
+
+
 PROCESSOR_MAP = {
     "gent": BasicElementProcessor,
     "gents": SizedElementProcessor,
@@ -396,13 +425,14 @@ PROCESSOR_MAP = {
     "refinement": RefinementProcessor,
     "content": ContentAwareProcessor,
     "text": TextToLayoutProcessor,
+    "pptlayout": PowerPointLayoutProcessor,
 }
 
 
-def create_processor(dataset, task, pptx_path=None, *args, **kwargs):
+def create_processor(dataset, task, *args, **kwargs):
     processor_class = PROCESSOR_MAP[task]
     index2label = ID2LABEL[dataset]
-    canvas_width, canvas_height = canvas_size(dataset, pptx_path)
+    canvas_width, canvas_height = canvas_size(dataset)
     processor = processor_class(
         index2label=index2label,
         canvas_width=canvas_width,

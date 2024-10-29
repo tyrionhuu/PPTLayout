@@ -133,7 +133,7 @@ def read_json(filename):
 
 def read_pt(filename):
     with open(filename, "rb") as f:
-        return torch.load(f)
+        return torch.load(f, weights_only=True)
 
 
 def write_pt(filename, obj):

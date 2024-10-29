@@ -61,34 +61,16 @@ ID2LABEL = {
         8: "icon",
         9: "input",
     },
-    "ppt": {
-        1: "auto shape",
-        2: "callout",
-        3: "canvas",
-        4: "chart",
-        5: "comment",
-        6: "diagram",
-        7: "embedded ole object",
-        8: "form control",
-        9: "freeform",
-        10: "group",
-        11: "igx graphic",
-        12: "ink",
-        13: "ink comment",
-        14: "line",
-        15: "linked ole object",
-        16: "linked picture",
-        17: "media",
-        18: "ole control object",
-        19: "picture",
-        20: "placeholder",
-        21: "script anchor",
-        22: "table",
-        23: "text box",
-        24: "text effect",
-        25: "web video",
-        26: "mixed",
-    },
+}
+
+LABEL2ID_PPT = {
+    "preset": 0,
+    "freeform": 1,
+    "text": 2,
+    "picture": 3,
+    "line": 4,
+    "chart": 5,
+    "table": 6,
 }
 
 DEFAULT_SIZE = (6868000, 12192000)
@@ -232,13 +214,65 @@ def convert_ltwh_to_ltrb(bounding_box):
 
 
 # convert dataset.txt to dataset.json
-def powerpoint_dataset_json_converter(file_path: str, output_file: str) -> dict:
-    df = pd.read_csv(file_path, delim_whitespace=True)
+def powerpoint_dataset_json_converter(
+    dir_path: str, input_file: str, output_file: str
+) -> list:
+    input_file = os.path.join(dir_path, input_file)
+    output_file = os.path.join(dir_path, output_file)
+
+    df = pd.read_csv(input_file, sep=r"\s+")
+    print(df.head())
     grouped_data = (
-        df.groupby("slide_id").apply(lambda x: x.to_dict(orient="records")).to_dict()
+        df.groupby("slide_id")
+        .apply(lambda x: x.to_dict(orient="records"), include_groups=False)
+        .to_dict()
     )
 
-    json_data = json.dumps(grouped_data, indent=4)
+    def parse_float_string_list(string: str) -> list:
+        return [float(x) for x in string.split(",")]
+
+    def parse_int_string_list(string: str) -> list:
+        return [int(x) for x in string.split(",")]
+
+    def get_bounding_box_list(data):
+        original_list = [d["position"] for d in data]
+        float_list = [parse_float_string_list(d) for d in original_list]
+        normalized_list = [d / 100 for d in float_list]
+        return torch.tensor(normalized_list)
+
+    def get_labels(data):
+        original_list = [d["element_type"] for d in data]
+        id_list = [LABEL2ID_PPT[d] for d in original_list]
+        return torch.tensor(id_list)
+
+    def get_depth(data):
+        original_list = [d["z-index"] for d in data]
+        int_list = [int(d) for d in original_list]
+        return torch.tensor(int_list)
+
+    def get_rotation(data):
+        original_list = [d["rotation"] for d in data]
+        float_list = [float(d) for d in original_list]
+        return torch.tensor(float_list)
+
+    def get_alignment(data):
+        original_list = [d["alignment"] for d in data]
+        int_list = [parse_int_string_list(d) for d in original_list]
+        return torch.tensor(int_list)
+
+    data_by_slide = []
+    for slide_id, data in grouped_data.items():
+        data_by_slide.append(
+            {
+                "slide_id": slide_id,
+                "bounding_boxes": get_bounding_box_list(data),
+                "labels": get_labels(data),
+                "depth": get_depth(data),
+                "rotation": get_rotation(data),
+                "text_alignment": get_alignment(data),
+            }
+        )
+
     with open(output_file, "w") as f:
-        f.write(json_data)
-    return grouped_data
+        json.dump(data_by_slide, f)
+    return data_by_slide

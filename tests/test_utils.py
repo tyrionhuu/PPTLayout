@@ -11,7 +11,7 @@ sys.path.append(
 from utils import get_slide_size, powerpoint_dataset_json_converter  # noqa: E402
 
 PPTX_PATH = os.path.join(os.path.dirname(__file__), "./data/test.pptx")
-DATASET_PATH = os.path.join(os.path.dirname(__file__), "./data/dataset.txt")
+DATASET_DIR = os.path.join(os.path.dirname(__file__), "./data/")
 
 
 @pytest.fixture
@@ -22,9 +22,9 @@ def load_presentation():
 
 
 @pytest.fixture
-def file_path():
+def data_dir():
     """Fixture to get the file path."""
-    return PPTX_PATH, DATASET_PATH
+    return DATASET_DIR
 
 
 def test_get_slide_size(load_presentation):
@@ -34,7 +34,7 @@ def test_get_slide_size(load_presentation):
     assert height == 6858000
 
 
-def test_convert_dataset(file_path, output_path):
+def test_convert_dataset(data_dir):
     """Test powerpoint_dataset_json_converter function."""
-    powerpoint_dataset_json_converter(file_path[0], file_path[1])
-    assert os.path.exists("dataset.json")
+    powerpoint_dataset_json_converter(data_dir, "dataset.txt", "dataset.json")
+    assert os.path.exists(data_dir + "dataset.json")

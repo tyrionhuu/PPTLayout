@@ -1,4 +1,4 @@
-from ..input.utils import LAYOUT_DOMAIN, canvas_size
+from utils import LAYOUT_DOMAIN, canvas_size
 
 PREAMBLE = (
     "Please generate a layout based on the given information. "

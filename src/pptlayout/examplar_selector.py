@@ -3,10 +3,13 @@ import random
 import cv2
 import numpy as np
 from utils import (
+    alignment_similarity,
     canvas_size,
+    depth_similarity,
     labels_bounding_boxes_similarity,
     labels_similarity,
     normalize_weights,
+    rotation_similarity,
 )
 
 
@@ -218,10 +221,10 @@ class PowerPointExemplarSelector(ExemplarSelector):
                     self.label_weight,
                     self.bounding_box_weight,
                 )
-                + (train_depth == test_depth).float().mean().item() * self.depth_weight
-                + (train_rotation == test_rotation).float().mean().item()
+                + depth_similarity(train_depth, test_depth) * self.depth_weight
+                + rotation_similarity(train_rotation, test_rotation)
                 * self.rotation_weight
-                + (train_alignment == test_alignment).float().mean().item()
+                + alignment_similarity(train_alignment, test_alignment)
                 * self.alignment_weight
             )
             scores.append([i, score])

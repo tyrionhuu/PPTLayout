@@ -80,9 +80,5 @@ exclude_lines = [
     "if __name__ == .__main__.:"
 ]
 
-[project]
-requires-python = "~=3.11"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.setuptools]
+py-modules = ['pptlayout']

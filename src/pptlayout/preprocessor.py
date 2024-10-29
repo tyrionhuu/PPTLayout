@@ -4,7 +4,6 @@ import random
 import cv2
 import torch
 from operators import (
-    ID2LABEL,
     AddCanvasElement,
     AddGaussianNoise,
     AddRelation,
@@ -17,7 +16,7 @@ from operators import (
 )
 from pandas import DataFrame
 from torchvision import transforms
-from utils import canvas_size, clean_text
+from utils import ID2LABEL, canvas_size, clean_text
 
 
 class Processor:

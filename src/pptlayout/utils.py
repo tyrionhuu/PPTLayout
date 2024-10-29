@@ -230,7 +230,13 @@ def powerpoint_dataset_json_converter(
     output_file = os.path.join(dir_path, output_file)
 
     df = pd.read_csv(input_file, sep=r"\s+")
-    # print(df.head())
+
+    def parse_float_string_list(string: str) -> list[float]:
+        return [float(x) for x in string.split(",")]
+
+    def parse_int_string_list(string: str) -> list[int]:
+        return [int(x) for x in string.split(",")]
+
     grouped_data = (
         df.groupby("slide_id")
         .apply(lambda x: x.to_dict(orient="records"), include_groups=False)
@@ -238,18 +244,25 @@ def powerpoint_dataset_json_converter(
     )
 
     data_by_slide = []
-    for slide_id, data in grouped_data.items():
-        slide_data = {"slide_id": slide_id, "elements": data}
-        data_by_slide.append(slide_data)
+    for slide_id, slide_data in grouped_data.items():
+        data_by_slide.append(
+            {
+                "slide_id": slide_id,
+                "elements": [
+                    {
+                        "type": d["element_type"],
+                        "position": parse_float_string_list(d["position"]),
+                        "depth": int(d["z-index"]),
+                        "rotation": float(d["rotation"]),
+                        "text_alignment": parse_int_string_list(d["alignment"]),
+                    }
+                    for d in slide_data
+                ],
+            }
+        )
 
     json.dump(data_by_slide, open(output_file, "w"))
     return data_by_slide
-
-    # def parse_float_string_list(string: str) -> list[float]:
-    #     return [float(x) for x in string.split(",")]
-
-    # def parse_int_string_list(string: str) -> list[int]:
-    #     return [int(x) for x in string.split(",")]
 
     # def get_bounding_box_lists(data: list[dict]) -> torch.Tensor:
     #     original_lists = [d["position"] for d in data]
@@ -257,7 +270,7 @@ def powerpoint_dataset_json_converter(
     #     normalized_lists = []
     #     for list in float_lists:
     #         normalized_lists.append([d / 100 for d in list])
-    #     return torch.tensor(normalized_lists)
+    #     return normalized_lists
 
     # def get_labels_list(data: list[dict]) -> torch.Tensor:
     #     original_list = [d["element_type"] for d in data]

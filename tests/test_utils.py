@@ -36,5 +36,5 @@ def test_get_slide_size(load_presentation):
 
 def test_convert_dataset(data_dir):
     """Test powerpoint_dataset_json_converter function."""
-    powerpoint_dataset_json_converter(data_dir, "dataset.txt", "dataset.json")
-    assert os.path.exists(data_dir + "dataset.json")
+    powerpoint_dataset_json_converter(data_dir, "dataset.txt", "dataset.pt")
+    assert os.path.exists(data_dir + "dataset.pt")

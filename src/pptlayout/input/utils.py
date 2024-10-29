@@ -214,9 +214,7 @@ def convert_ltwh_to_ltrb(bounding_box):
 
 
 # convert dataset.txt to dataset.json
-def powerpoint_dataset_json_converter(
-    dir_path: str, input_file: str, output_file: str
-) -> list:
+def powerpoint_dataset_json_converter(dir_path: str, input_file: str, output_file: str):
     input_file = os.path.join(dir_path, input_file)
     output_file = os.path.join(dir_path, output_file)
 
@@ -228,51 +226,52 @@ def powerpoint_dataset_json_converter(
         .to_dict()
     )
 
-    def parse_float_string_list(string: str) -> list:
+    def parse_float_string_list(string: str) -> list[float]:
         return [float(x) for x in string.split(",")]
 
-    def parse_int_string_list(string: str) -> list:
+    def parse_int_string_list(string: str) -> list[int]:
         return [int(x) for x in string.split(",")]
 
-    def get_bounding_box_list(data):
-        original_list = [d["position"] for d in data]
-        float_list = [parse_float_string_list(d) for d in original_list]
-        normalized_list = [d / 100 for d in float_list]
-        return torch.tensor(normalized_list)
+    def get_bounding_box_lists(data: list[dict]) -> torch.Tensor:
+        original_lists = [d["position"] for d in data]
+        float_lists = [parse_float_string_list(d) for d in original_lists]
+        normalized_lists = []
+        for list in float_lists:
+            normalized_lists.append([d / 100 for d in list])
+        return torch.tensor(normalized_lists)
 
-    def get_labels(data):
+    def get_labels_list(data: list[dict]) -> torch.Tensor:
         original_list = [d["element_type"] for d in data]
         id_list = [LABEL2ID_PPT[d] for d in original_list]
         return torch.tensor(id_list)
 
-    def get_depth(data):
+    def get_depth_list(data: list[dict]) -> torch.Tensor:
         original_list = [d["z-index"] for d in data]
         int_list = [int(d) for d in original_list]
         return torch.tensor(int_list)
 
-    def get_rotation(data):
+    def get_rotation_list(data: list[dict]) -> torch.Tensor:
         original_list = [d["rotation"] for d in data]
         float_list = [float(d) for d in original_list]
         return torch.tensor(float_list)
 
-    def get_alignment(data):
-        original_list = [d["alignment"] for d in data]
-        int_list = [parse_int_string_list(d) for d in original_list]
-        return torch.tensor(int_list)
+    def get_alignment_lists(data: list[dict]) -> torch.Tensor:
+        original_lists = [d["alignment"] for d in data]
+        int_lists = [parse_int_string_list(d) for d in original_lists]
+        return torch.tensor(int_lists)
 
     data_by_slide = []
     for slide_id, data in grouped_data.items():
         data_by_slide.append(
             {
                 "slide_id": slide_id,
-                "bounding_boxes": get_bounding_box_list(data),
-                "labels": get_labels(data),
-                "depth": get_depth(data),
-                "rotation": get_rotation(data),
-                "text_alignment": get_alignment(data),
+                "bounding_boxes": get_bounding_box_lists(data),
+                "labels": get_labels_list(data),
+                "depth": get_depth_list(data),
+                "rotation": get_rotation_list(data),
+                "text_alignment": get_alignment_lists(data),
             }
         )
-
-    with open(output_file, "w") as f:
-        json.dump(data_by_slide, f)
-    return data_by_slide
+    # print(data_by_slide)
+    write_pt(output_file, data_by_slide)
+    return None

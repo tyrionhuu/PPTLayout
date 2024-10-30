@@ -17,6 +17,10 @@ __pycache__/
 .idea/
 .DS_Store
 
+# Generated files
+data/
+
+
 # Cache
 .mypy_cache/
 .pytest_cache

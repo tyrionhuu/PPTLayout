@@ -239,7 +239,7 @@ SELECTOR_MAP = {
     "refinement": RefinementExemplarSelector,
     "content": ContentAwareExemplarSelector,
     "text": TextToLayoutExemplarSelector,
-    "ppt": PowerPointExemplarSelector,
+    "pptlayout": PowerPointExemplarSelector,
 }
 
 

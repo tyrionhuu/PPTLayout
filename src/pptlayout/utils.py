@@ -255,13 +255,16 @@ def powerpoint_dataset_json_converter(
 
     data_by_slide = []
     for slide_id, slide_data in grouped_data.items():
+
         data_by_slide.append(
             {
                 "slide_id": slide_id,
                 "elements": [
                     {
                         "labels": LABEL2ID_PPT[d["element_type"]],
-                        "bounding_boxes": parse_float_string_list(d["position"]),
+                        "bounding_boxes": [
+                            num / 100 for num in parse_float_string_list(d["position"])
+                        ],
                         "depth": int(d["z-index"]),
                         "rotation": float(d["rotation"]),
                         "text_alignment": parse_int_string_list(d["alignment"]),

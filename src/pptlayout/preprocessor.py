@@ -442,6 +442,7 @@ class PowerPointLayoutProcessor(Processor):
             discrete_bounding_boxes[i][3] = int(
                 discrete_bounding_boxes[i][3] * self.canvas_height
             )
+        discrete_bounding_boxes = torch.tensor(discrete_bounding_boxes)
         return {
             "labels": labels,
             "bounding_boxes": bounding_boxes,

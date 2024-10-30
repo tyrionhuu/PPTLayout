@@ -1,4 +1,4 @@
-from transforms import RelationTypes
+from operators import RelationTypes
 from utils import ID2LABEL, canvas_size
 
 HTML_PREFIX = """<html>
@@ -413,6 +413,56 @@ class TextToLayoutSerializer(Serializer):
         return self.constraint_type[0] + super().build_input(data)
 
 
+class PowerPointLayoutSerializer(Serializer):
+    task_type = "generation conditioned on given element types from a powerpoint slide"
+    constraint_type = ["Element Type Constraint: "]
+    HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN = '<div class="{}"></div>\n'
+    HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN_WITH_INDEX = (
+        '<div class="{}" style="index: {}"></div>\n'
+    )
+
+    def _build_sequence_input(self, data):
+        labels = data["labels"]
+        tokens = []
+
+        for index in range(len(labels)):
+            label = self.index2label[int(labels[index])]
+            tokens.append(label)
+            if self.add_index_token:
+                tokens.append(str(index))
+            if self.add_unknown_token:
+                tokens += [self.unknown_token] * 4
+            if self.add_separation_token and index < len(labels) - 1:
+                tokens.append(self.separation_token)
+        return " ".join(tokens)
+
+    def _build_html_input(self, data):
+        labels = data["labels"]
+        htmls = [HTML_PREFIX.format(self.canvas_width, self.canvas_height)]
+        if self.add_index_token and self.add_unknown_token:
+            _TEMPLATE = HTML_TEMPLATE_WITH_INDEX
+        elif self.add_index_token and not self.add_unknown_token:
+            _TEMPLATE = self.HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN_WITH_INDEX
+        elif not self.add_index_token and self.add_unknown_token:
+            _TEMPLATE = HTML_TEMPLATE
+        else:
+            _TEMPLATE = self.HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN
+
+        for index in range(len(labels)):
+            label = self.index2label[int(labels[index])]
+            element = [label]
+            if self.add_index_token:
+                element.append(str(index))
+            if self.add_unknown_token:
+                element += [self.unknown_token] * 4
+            htmls.append(_TEMPLATE.format(*element))
+        htmls.append(HTML_SUFFIX)
+        return "".join(htmls)
+
+    def build_input(self, data):
+        return self.constraint_type[0] + super().build_input(data)
+
+
 SERIALIZER_MAP = {
     "gent": BasicElementSerializer,
     "gents": SizedElementSerializer,
@@ -421,6 +471,7 @@ SERIALIZER_MAP = {
     "refinement": RefinementSerializer,
     "content": ContentAwareSerializer,
     "text": TextToLayoutSerializer,
+    "pptlayout": PowerPointLayoutSerializer,
 }
 
 

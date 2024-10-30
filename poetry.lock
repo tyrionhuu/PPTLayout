@@ -2719,6 +2719,25 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "mirrors"
 
 [[package]]
+name = "ollama"
+version = "0.3.3"
+description = "The official Python client for Ollama."
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "ollama-0.3.3-py3-none-any.whl", hash = "sha256:ca6242ce78ab34758082b7392df3f9f6c2cb1d070a9dede1a4c545c929e16dba"},
+    {file = "ollama-0.3.3.tar.gz", hash = "sha256:f90a6d61803117f40b0e8ff17465cab5e1eb24758a473cfe8101aff38bc13b51"},
+]
+
+[package.dependencies]
+httpx = ">=0.27.0,<0.28.0"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+reference = "mirrors"
+
+[[package]]
 name = "openai"
 version = "1.52.2"
 description = "The official Python library for the openai API"
@@ -5024,4 +5043,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "~=3.11"
-content-hash = "755408fa9a34133281dea9f920c324ad142fb630eec7a8966230ebe12fcb414e"
+content-hash = "25e53e57ab1f2b9acfd430bcfc6371a8a772f69b7c8f756f47bc0d5dee7aa3ee"

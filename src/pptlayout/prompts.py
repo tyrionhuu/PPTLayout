@@ -1,7 +1,7 @@
 from utils import LAYOUT_DOMAIN, canvas_size
 
 PREAMBLE = (
-    "Please generate a layout based on the given information. "
+    "Please generate a powerpoint layout based on the given information. "
     "You need to ensure that the generated layout looks realistic, with elements well aligned and avoiding unnecessary overlap.\n"
     "Task Description: {}\n"
     "Layout Domain: {} layout\n"

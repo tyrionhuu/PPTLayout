@@ -86,7 +86,7 @@ LABEL2ID_PPT = {
     "other": 7,
 }
 
-DEFAULT_SIZE = (6868000, 12192000)
+DEFAULT_SIZE = (1920, 1080)
 
 
 def canvas_size(domain: str, pptx_path=None) -> tuple:

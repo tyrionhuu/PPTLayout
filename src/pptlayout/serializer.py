@@ -414,7 +414,7 @@ class TextToLayoutSerializer(Serializer):
 
 
 class PowerPointLayoutSerializer(Serializer):
-    task_type = "generation conditioned on given element types from a powerpoint slide"
+    task_type = "powerpoint layout generation conditioned on given element types from a powerpoint slide"
     constraint_type = ["Element Type Constraint: "]
     HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN = '<div class="{}"></div>\n'
     HTML_TEMPLATE_WITHOUT_UNKNOWN_TOKEN_WITH_INDEX = (

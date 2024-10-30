@@ -34,6 +34,7 @@ scipy = "^1.14.1"
 scikit-learn = "^1.5.2"
 sympy = "1.13.1"
 jupyter = "^1.1.1"
+ollama = "^0.3.3"
 
 [[tool.poetry.source]]
 name = "mirrors"

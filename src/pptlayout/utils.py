@@ -283,24 +283,26 @@ def normalize_weights(*args):
     return [arg / total for arg in args]
 
 
-def labels_similarity(labels_1, labels_2):
-    def _intersection(labels_1, labels_2):
-        cnt = 0
-        x = Counter(labels_1)
-        y = Counter(labels_2)
-        for k in x:
-            if k in y:
-                cnt += 2 * min(x[k], y[k])
-        return cnt
+def intersection(data_1, data_2):
+    cnt = 0
+    x = Counter(data_1)
+    y = Counter(data_2)
+    for k in x:
+        if k in y:
+            cnt += 2 * min(x[k], y[k])
+    return cnt
 
-    def _union(labels_1, labels_2):
-        return len(labels_1) + len(labels_2)
 
+def union(labels_1, labels_2):
+    return len(labels_1) + len(labels_2)
+
+
+def tensor_similarity(labels_1, labels_2):
     if isinstance(labels_1, torch.Tensor):
         labels_1 = labels_1.tolist()
     if isinstance(labels_2, torch.Tensor):
         labels_2 = labels_2.tolist()
-    return _intersection(labels_1, labels_2) / _union(labels_1, labels_2)
+    return intersection(labels_1, labels_2) / union(labels_1, labels_2)
 
 
 def bounding_boxes_similarity(
@@ -327,22 +329,13 @@ def labels_bounding_boxes_similarity(
     labels_weight,
     bounding_boxes_weight,
 ):
-    labels_sim = labels_similarity(labels_1, labels_2)
+    labels_sim = tensor_similarity(labels_1, labels_2)
     bounding_boxes_sim = bounding_boxes_similarity(
         labels_1, bounding_boxes_1, labels_2, bounding_boxes_2
     )
     return labels_weight * labels_sim + bounding_boxes_weight * bounding_boxes_sim
 
 
-def depth_similarity(depth_1: int, depth_2: int) -> int:
-    return 1 if depth_1 == depth_2 else 0
-
-
-def rotation_similarity(rotation_1: float, rotation_2: float) -> float:
-    return 1 - abs(rotation_1 - rotation_2) / 360
-
-
-def alignment_similarity(alignment_1: list[int], alignment_2: list[int]) -> float:
-    return sum(
-        [1 if a1 == a2 else 0 for a1, a2 in zip(alignment_1, alignment_2)]
-    ) / len(alignment_1)
+def text_alignment_similarity(text_alignment_1, text_alignment_2):
+    # TODO
+    return 0

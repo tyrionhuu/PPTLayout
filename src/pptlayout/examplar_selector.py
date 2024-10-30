@@ -3,13 +3,11 @@ import random
 import cv2
 import numpy as np
 from utils import (
-    alignment_similarity,
     canvas_size,
-    depth_similarity,
     labels_bounding_boxes_similarity,
-    labels_similarity,
     normalize_weights,
-    rotation_similarity,
+    tensor_similarity,
+    text_alignment_similarity,
 )
 
 
@@ -54,7 +52,7 @@ class BasicElementExemplarSelector(ExemplarSelector):
         test_labels = test_data["labels"]
         for i in range(len(self.train_data)):
             train_labels = self.train_data[i]["labels"]
-            score = labels_similarity(train_labels, test_labels)
+            score = tensor_similarity(train_labels, test_labels)
             scores.append([i, score])
         return self._retrieve_exemplars(scores)
 
@@ -88,7 +86,7 @@ class RelationalElementExemplarSelector(ExemplarSelector):
         test_labels = test_data["labels"]
         for i in range(len(self.train_data)):
             train_labels = self.train_data[i]["labels"]
-            score = labels_similarity(train_labels, test_labels)
+            score = tensor_similarity(train_labels, test_labels)
             scores.append([i, score])
         return self._retrieve_exemplars(scores)
 
@@ -140,7 +138,7 @@ class RefinementExemplarSelector(ExemplarSelector):
 
 
 class ContentAwareExemplarSelector(ExemplarSelector):
-    canvas_width, canvas_height = canvas_size["posterlayout"]
+    canvas_width, canvas_height = canvas_size("posterlayout")
 
     def _to_binary_image(self, content_bounding_boxes):
         binary_image = np.zeros((self.canvas_height, self.canvas_width), dtype=np.uint8)
@@ -178,24 +176,23 @@ class TextToLayoutExemplarSelector(ExemplarSelector):
 
 
 class PowerPointExemplarSelector(ExemplarSelector):
-    label_weight = 5
-    bounding_box_weight = 5
-    depth_weight = 1
+    label_weight = 10
+    bounding_box_weight = 10
+    depth_weight = 3
     rotation_weight = 1
-    alignment_weight = 1
-
+    text_alignment_weight = 1
     (
         label_weight,
         bounding_box_weight,
         depth_weight,
         rotation_weight,
-        alignment_weight,
+        text_alignment_weight,
     ) = normalize_weights(
         label_weight,
         bounding_box_weight,
         depth_weight,
         rotation_weight,
-        alignment_weight,
+        text_alignment_weight,
     )
 
     def __call__(self, test_data: dict):
@@ -212,8 +209,7 @@ class PowerPointExemplarSelector(ExemplarSelector):
             train_rotation = self.train_data[i]["rotation"]
             train_alignment = self.train_data[i]["text_alignment"]
             score = (
-                labels_similarity(train_labels, test_labels) * self.label_weight
-                + labels_bounding_boxes_similarity(
+                labels_bounding_boxes_similarity(
                     train_labels,
                     train_bounding_boxes,
                     test_labels,
@@ -221,11 +217,11 @@ class PowerPointExemplarSelector(ExemplarSelector):
                     self.label_weight,
                     self.bounding_box_weight,
                 )
-                + depth_similarity(train_depth, test_depth) * self.depth_weight
-                + rotation_similarity(train_rotation, test_rotation)
+                + tensor_similarity(train_depth, test_depth) * self.depth_weight
+                + tensor_similarity(train_rotation, test_rotation)
                 * self.rotation_weight
-                + alignment_similarity(train_alignment, test_alignment)
-                * self.alignment_weight
+                + text_alignment_similarity(train_alignment, test_alignment)
+                * self.text_alignment_weight
             )
             scores.append([i, score])
         return self._retrieve_exemplars(scores)

@@ -427,6 +427,9 @@ class PowerPointLayoutProcessor(Processor):
             [element["text_alignment"] for element in elements]
         )
         bounding_boxes = [element["bounding_boxes"] for element in elements]
+        bounding_boxes = [
+            [num / 100 for num in bounding_box] for bounding_box in bounding_boxes
+        ]
         discrete_bounding_boxes = bounding_boxes
         bounding_boxes = torch.tensor(bounding_boxes)
         for i in range(len(discrete_bounding_boxes)):

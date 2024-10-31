@@ -18,24 +18,26 @@ class Ranker:
         if self.val_path:
             self.val_data = read_pt(val_path)
             self.val_labels = [vd["labels"] for vd in self.val_data]
-            self.val_bboxes = [vd["bboxes"] for vd in self.val_data]
+            self.val_bounding_boxes = [vd["bounding_boxes"] for vd in self.val_data]
 
     def __call__(self, predictions: list):
         metrics = []
-        for pred_labels, pred_bboxes in predictions:
+        for pred_labels, pred_bounding_boxes in predictions:
             metric = []
             _pred_labels = pred_labels.unsqueeze(0)
-            _pred_bboxes = convert_ltwh_to_ltrb(pred_bboxes).unsqueeze(0)
+            _pred_bounding_boxes = convert_ltwh_to_ltrb(pred_bounding_boxes).unsqueeze(
+                0
+            )
             _pred_padding_mask = torch.ones_like(_pred_labels).bool()
-            metric.append(compute_alignment(_pred_bboxes, _pred_padding_mask))
-            metric.append(compute_overlap(_pred_bboxes, _pred_padding_mask))
+            metric.append(compute_alignment(_pred_bounding_boxes, _pred_padding_mask))
+            metric.append(compute_overlap(_pred_bounding_boxes, _pred_padding_mask))
             if self.val_path:
                 metric.append(
                     compute_maximum_iou(
                         pred_labels,
-                        pred_bboxes,
+                        pred_bounding_boxes,
                         self.val_labels,
-                        self.val_bboxes,
+                        self.val_bounding_boxes,
                     )
                 )
             metrics.append(metric)

@@ -458,6 +458,48 @@ class PowerPointLayoutProcessor(Processor):
         }
 
 
+class PowerPointRefinementPocessor(Processor):
+    return_keys = [
+        "labels",
+        "bounding_boxes",
+        "gold_bounding_boxes",
+        "discrete_bounding_boxes",
+        "discrete_gold_bounding_boxes",
+        "depth",
+        "rotation",
+        "text_alignment",
+    ]
+
+    def __init__(
+        self,
+        index2label: dict,
+        canvas_width: int = canvas_size("pptlayout")[0],
+        canvas_height: int = canvas_size("pptlayout")[1],
+        sort_by_position: bool = False,
+        shuffle_before_sort_by_label: bool = False,
+        sort_by_position_before_sort_by_label: bool = True,
+        gaussian_noise_mean: float = 0.0,
+        gaussian_noise_std: float = 0.01,
+        train_bernoulli_beta: float = 1.0,
+    ):
+        super().__init__(
+            index2label=index2label,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            sort_by_position=sort_by_position,
+            shuffle_before_sort_by_label=shuffle_before_sort_by_label,
+            sort_by_position_before_sort_by_label=sort_by_position_before_sort_by_label,
+        )
+        self.transform_functions = [
+            AddGaussianNoise(
+                mean=gaussian_noise_mean,
+                std=gaussian_noise_std,
+                bernoulli_beta=train_bernoulli_beta,
+            )
+        ] + self.transform_functions
+        self.transform = transforms.Compose(self.transform_functions)
+
+
 PROCESSOR_MAP = {
     "gent": BasicElementProcessor,
     "gents": SizedElementProcessor,
@@ -467,6 +509,7 @@ PROCESSOR_MAP = {
     "content": ContentAwareProcessor,
     "text": TextToLayoutProcessor,
     "pptlayout": PowerPointLayoutProcessor,
+    "pptrefinement": PowerPointRefinementPocessor,
 }
 
 

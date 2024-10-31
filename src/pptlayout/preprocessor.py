@@ -427,9 +427,6 @@ class PowerPointLayoutProcessor(Processor):
             [element["text_alignment"] for element in elements]
         )
         bounding_boxes = [element["bounding_boxes"] for element in elements]
-        bounding_boxes = [
-            [num / 100 for num in bounding_box] for bounding_box in bounding_boxes
-        ]
         discrete_bounding_boxes = bounding_boxes
         bounding_boxes = torch.tensor(bounding_boxes)
         for i in range(len(discrete_bounding_boxes)):
@@ -465,9 +462,9 @@ class PowerPointRefinementPocessor(Processor):
         "gold_bounding_boxes",
         "discrete_bounding_boxes",
         "discrete_gold_bounding_boxes",
-        "depth",
-        "rotation",
-        "text_alignment",
+        # "depth",
+        # "rotation",
+        # "text_alignment",
     ]
 
     def __init__(
@@ -479,7 +476,7 @@ class PowerPointRefinementPocessor(Processor):
         shuffle_before_sort_by_label: bool = False,
         sort_by_position_before_sort_by_label: bool = True,
         gaussian_noise_mean: float = 0.0,
-        gaussian_noise_std: float = 0.01,
+        gaussian_noise_std: float = 0.10,
         train_bernoulli_beta: float = 1.0,
     ):
         super().__init__(
@@ -499,44 +496,45 @@ class PowerPointRefinementPocessor(Processor):
         ] + self.transform_functions
         self.transform = transforms.Compose(self.transform_functions)
 
-    def __call__(self, data):
-        elements = data["elements"]
-        labels = torch.tensor([element["labels"] for element in elements])
-        depth = torch.tensor([element["depth"] for element in elements])
-        rotation = torch.tensor([element["rotation"] for element in elements])
-        text_alignment = torch.tensor(
-            [element["text_alignment"] for element in elements]
-        )
-        bounding_boxes = [element["bounding_boxes"] for element in elements]
-        bounding_boxes = [
-            [num / 100 for num in bounding_box] for bounding_box in bounding_boxes
-        ]
-        discrete_bounding_boxes = bounding_boxes
-        bounding_boxes = torch.tensor(bounding_boxes)
-        for i in range(len(discrete_bounding_boxes)):
-            discrete_bounding_boxes[i][0] = int(
-                discrete_bounding_boxes[i][0] * self.canvas_width
-            )
-            discrete_bounding_boxes[i][1] = int(
-                discrete_bounding_boxes[i][1] * self.canvas_height
-            )
-            discrete_bounding_boxes[i][2] = int(
-                discrete_bounding_boxes[i][2] * self.canvas_width
-            )
-            discrete_bounding_boxes[i][3] = int(
-                discrete_bounding_boxes[i][3] * self.canvas_height
-            )
-        discrete_bounding_boxes = torch.tensor(discrete_bounding_boxes)
-        return {
-            "labels": labels,
-            "bounding_boxes": bounding_boxes,
-            "gold_bounding_boxes": bounding_boxes,
-            "discrete_bounding_boxes": discrete_bounding_boxes,
-            "discrete_gold_bounding_boxes": discrete_bounding_boxes,
-            "depth": depth,
-            "rotation": rotation,
-            "text_alignment": text_alignment,
-        }
+        # def __call__(self, data):
+        #     elements = data["elements"]
+        #     labels = torch.tensor([element["labels"] for element in elements])
+        #     depth = torch.tensor([element["depth"] for element in elements])
+        #     rotation = torch.tensor([element["rotation"] for element in elements])
+        #     text_alignment = torch.tensor(
+        #         [element["text_alignment"] for element in elements]
+        #     )
+        #     bounding_boxes = [element["bounding_boxes"] for element in elements]
+        #     bounding_boxes = [
+        #         [num / 100 for num in bounding_box] for bounding_box in bounding_boxes
+        #     ]
+        #     discrete_bounding_boxes = bounding_boxes
+        #     bounding_boxes = torch.tensor(bounding_boxes)
+        #     for i in range(len(discrete_bounding_boxes)):
+        #         discrete_bounding_boxes[i][0] = int(
+        #             discrete_bounding_boxes[i][0] * self.canvas_width
+        #         )
+        #         discrete_bounding_boxes[i][1] = int(
+        #             discrete_bounding_boxes[i][1] * self.canvas_height
+        #         )
+        #         discrete_bounding_boxes[i][2] = int(
+        #             discrete_bounding_boxes[i][2] * self.canvas_width
+        #         )
+        #         discrete_bounding_boxes[i][3] = int(
+        #             discrete_bounding_boxes[i][3] * self.canvas_height
+        #         )
+        #     discrete_bounding_boxes = torch.tensor(discrete_bounding_boxes)
+        # return {
+        #     "labels": labels,
+        #     "bounding_boxes": bounding_boxes,
+        #     "gold_bounding_boxes": bounding_boxes,
+        #     "discrete_bounding_boxes": discrete_bounding_boxes,
+        #     "discrete_gold_bounding_boxes": discrete_bounding_boxes,
+        #     "depth": depth,
+        #     "rotation": rotation,
+        #     "text_alignment": text_alignment,
+        # }
+        return None
 
 
 PROCESSOR_MAP = {

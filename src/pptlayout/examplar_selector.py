@@ -178,9 +178,9 @@ class TextToLayoutExemplarSelector(ExemplarSelector):
 class PowerPointExemplarSelector(ExemplarSelector):
     label_weight = 10
     bounding_box_weight = 10
-    depth_weight = 3
-    rotation_weight = 1
-    text_alignment_weight = 1
+    depth_weight = 0
+    rotation_weight = 0
+    text_alignment_weight = 0
     (
         label_weight,
         bounding_box_weight,
@@ -227,6 +227,36 @@ class PowerPointExemplarSelector(ExemplarSelector):
         return self._retrieve_exemplars(scores)
 
 
+class PowerPointRefinementExemplarSelector(ExemplarSelector):
+    label_weight = 10
+    bounding_box_weight = 10
+    (
+        label_weight,
+        bounding_box_weight,
+    ) = normalize_weights(
+        label_weight,
+        bounding_box_weight,
+    )
+
+    def __call__(self, test_data: dict):
+        scores = []
+        test_labels = test_data["labels"]
+        test_bounding_boxes = test_data["bounding_boxes"]
+        for i in range(len(self.train_data)):
+            train_labels = self.train_data[i]["labels"]
+            train_bounding_boxes = self.train_data[i]["bounding_boxes"]
+            score = labels_bounding_boxes_similarity(
+                train_labels,
+                train_bounding_boxes,
+                test_labels,
+                test_bounding_boxes,
+                self.label_weight,
+                self.bounding_box_weight,
+            )
+            scores.append([i, score])
+        return self._retrieve_exemplars(scores)
+
+
 SELECTOR_MAP = {
     "gent": BasicElementExemplarSelector,
     "gents": SizedElementExemplarSelector,
@@ -236,7 +266,7 @@ SELECTOR_MAP = {
     "content": ContentAwareExemplarSelector,
     "text": TextToLayoutExemplarSelector,
     "pptlayout": PowerPointExemplarSelector,
-    "pptrefinement": PowerPointExemplarSelector,
+    "pptrefinement": PowerPointRefinementExemplarSelector,
 }
 
 

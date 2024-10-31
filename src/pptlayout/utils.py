@@ -280,6 +280,35 @@ def powerpoint_dataset_json_converter(
     return data_by_slide
 
 
+def powerpoint_dataset_formatter(dir_path: str, input_file: str) -> list[dict]:
+    raw_data = read_json(os.path.join(dir_path, input_file))
+    processed_data = []
+    for slide in raw_data:
+        elements = slide["elements"]
+        raw_labels = [element["labels"] for element in elements]
+        raw_bounding_boxes = [element["bounding_boxes"] for element in elements]
+        raw_depths = [element["depth"] for element in elements]
+        raw_rotations = [element["rotation"] for element in elements]
+        raw_text_alignments = [element["text_alignment"] for element in elements]
+
+        labels = torch.tensor(raw_labels)
+        bounding_boxes = torch.tensor(raw_bounding_boxes)
+        depths = torch.tensor(raw_depths)
+        rotations = torch.tensor(raw_rotations)
+        text_alignments = torch.tensor(raw_text_alignments)
+
+        processed_data.append(
+            {
+                "labels": labels,
+                "bounding_boxes": bounding_boxes,
+                "depths": depths,
+                "rotations": rotations,
+                "text_alignments": text_alignments,
+            }
+        )
+    return processed_data
+
+
 def normalize_weights(*args):
     total = sum(args)
     return [arg / total for arg in args]

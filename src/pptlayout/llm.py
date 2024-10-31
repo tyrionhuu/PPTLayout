@@ -13,15 +13,21 @@ class OllamaClient:
         top_p: float = 1.0,
         frequency_penalty: float = 0.0,
         presence_penalty: float = 0.0,
+        num_return=5,
     ):
-        return ollama.generate(
-            model=self.model_name,
-            system="You are a helpful powerpoint layout generator",
-            prompt=prompt,
-            options=Options(
-                temperature=temperature,
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
-            ),
-        )["response"]
+        responses = []
+        for _ in range(num_return):
+            responses.append(
+                ollama.generate(
+                    model=self.model_name,
+                    system="You are a helpful html Powerpoint layout generator",
+                    prompt=prompt,
+                    options=Options(
+                        temperature=temperature,
+                        top_p=top_p,
+                        frequency_penalty=frequency_penalty,
+                        presence_penalty=presence_penalty,
+                    ),
+                )["response"]
+            )
+        return responses

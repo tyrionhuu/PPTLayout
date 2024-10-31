@@ -2,7 +2,7 @@ import re
 
 import openai
 import torch
-from utils import ID2LABEL, canvas_size
+from utils import ID2LABEL, LABEL2ID_PPT, canvas_size
 
 
 class Parser:
@@ -10,7 +10,7 @@ class Parser:
         self.dataset = dataset
         self.output_format = output_format
         self.id2label = ID2LABEL[self.dataset]
-        self.label2id = {v: k for k, v in self.id2label.items()}
+        self.label2id = LABEL2ID_PPT
         self.canvas_width, self.canvas_height = canvas_size(self.dataset)
 
     def _extract_labels_and_bounding_boxes(self, prediction: str):
@@ -19,14 +19,14 @@ class Parser:
         elif self.output_format == "html":
             return self._extract_labels_and_bounding_boxes_from_html(prediction)
 
-    def _extract_labels_and_bounding_boxes_from_html(self, predition: str):
-        labels_list = re.findall('<div class="(.*?)"', predition)[
+    def _extract_labels_and_bounding_boxes_from_html(self, prediction: str):
+        labels_list = re.findall('<div class="(.*?)"', prediction)[
             1:
         ]  # remove the canvas
-        x = re.findall(r"left:.?(\d+)px", predition)[1:]
-        y = re.findall(r"top:.?(\d+)px", predition)[1:]
-        w = re.findall(r"width:.?(\d+)px", predition)[1:]
-        h = re.findall(r"height:.?(\d+)px", predition)[1:]
+        x = re.findall(r"left:.?(\d+)px", prediction)[1:]
+        y = re.findall(r"top:.?(\d+)px", prediction)[1:]
+        w = re.findall(r"width:.?(\d+)px", prediction)[1:]
+        h = re.findall(r"height:.?(\d+)px", prediction)[1:]
         if not (len(labels_list) == len(x) == len(y) == len(w) == len(h)):
             raise RuntimeError
         labels = torch.tensor([self.label2id[label] for label in labels_list])

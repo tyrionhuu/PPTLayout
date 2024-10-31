@@ -2,7 +2,9 @@ import json
 import os
 import re
 from collections import Counter
+from typing import List
 
+import numpy as np
 import pandas as pd
 import torch
 from pptx.enum.dml import MSO_FILL
@@ -339,3 +341,78 @@ def labels_bounding_boxes_similarity(
 def text_alignment_similarity(text_alignment_1, text_alignment_2):
     # TODO
     return 0
+
+
+def compute_alignment(bounding_box, mask):
+    # Attribute-conditioned Layout GAN
+    # 3.6.4 Alignment Loss
+
+    bounding_box = bounding_box.permute(2, 0, 1)
+    xl, yt, xr, yb = bounding_box
+    xc = (xr + xl) / 2
+    yc = (yt + yb) / 2
+    X = torch.stack([xl, xc, xr, yt, yc, yb], dim=1)
+
+    X = X.unsqueeze(-1) - X.unsqueeze(-2)
+    idx = torch.arange(X.size(2), device=X.device)
+    X[:, :, idx, idx] = 1.0
+    X = X.abs().permute(0, 2, 1, 3)
+    X[~mask] = 1.0
+    X = X.min(-1).values.min(-1).values
+    X.masked_fill_(X.eq(1.0), 0.0)
+
+    X = -torch.log(1 - X)
+    score = torch.from_numpy(np.nan_to_num((X.sum(-1) / mask.float().sum(-1)))).numpy()
+    return (score).mean().item()
+
+
+def compute_maximum_iou(
+    labels_1: torch.Tensor,
+    bounding_boxes_1: torch.Tensor,
+    labels_2: List[torch.Tensor],
+    bounding_boxes_2: List[torch.Tensor],
+    labels_weight: float = 0.2,
+    bounding_boxes_weight: float = 0.8,
+):
+    scores = []
+    for i in range(len(labels_2)):
+        score = labels_bounding_boxes_similarity(
+            labels_1,
+            bounding_boxes_1,
+            labels_2[i],
+            bounding_boxes_2[i],
+            labels_weight,
+            bounding_boxes_weight,
+        )
+        scores.append(score)
+    return torch.tensor(scores).max().item()
+
+
+def compute_overlap(bounding_box, mask):
+    # Attribute-conditioned Layout GAN
+    # 3.6.3 Overlapping Loss
+
+    bounding_box = bounding_box.masked_fill(~mask.unsqueeze(-1), 0)
+    bounding_box = bounding_box.permute(2, 0, 1)
+
+    l1, t1, r1, b1 = bounding_box.unsqueeze(-1)
+    l2, t2, r2, b2 = bounding_box.unsqueeze(-2)
+    a1 = (r1 - l1) * (b1 - t1)
+
+    # intersection
+    l_max = torch.maximum(l1, l2)
+    r_min = torch.minimum(r1, r2)
+    t_max = torch.maximum(t1, t2)
+    b_min = torch.minimum(b1, b2)
+    cond = (l_max < r_min) & (t_max < b_min)
+    ai = torch.where(cond, (r_min - l_max) * (b_min - t_max), torch.zeros_like(a1[0]))
+
+    diag_mask = torch.eye(a1.size(1), dtype=torch.bool, device=a1.device)
+    ai = ai.masked_fill(diag_mask, 0)
+
+    ar = ai / a1
+    ar = torch.from_numpy(np.nan_to_num(ar.numpy()))
+    score = torch.from_numpy(
+        np.nan_to_num((ar.sum(dim=(1, 2)) / mask.float().sum(-1)).numpy())
+    )
+    return (score).mean().item()

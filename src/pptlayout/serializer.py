@@ -463,6 +463,20 @@ class PowerPointLayoutSerializer(Serializer):
         return self.constraint_type[0] + super().build_input(data)
 
 
+class PowerPointRefinementSerializer(Serializer):
+    task_type = "powerpoint layout refinement"
+    constraint_type = ["Noise Layout: "]
+
+    def _build_sequence_input(self, data):
+        return self._build_sequence_output(data, "labels", "discrete_bounding_boxes")
+
+    def _build_html_input(self, data):
+        return self._build_html_output(data, "labels", "discrete_bounding_boxes")
+
+    def build_input(self, data):
+        return self.constraint_type[0] + super().build_input(data)
+
+
 SERIALIZER_MAP = {
     "gent": BasicElementSerializer,
     "gents": SizedElementSerializer,
@@ -472,6 +486,7 @@ SERIALIZER_MAP = {
     "content": ContentAwareSerializer,
     "text": TextToLayoutSerializer,
     "pptlayout": PowerPointLayoutSerializer,
+    "pptrefinement": PowerPointRefinementSerializer,
 }
 
 

@@ -227,6 +227,8 @@ class PowerPointExemplarSelector(ExemplarSelector):
         return self._retrieve_exemplars(scores)
 
 
+# class PowerPointRefinementExemplarSelector(ExemplarSelector):
+
 SELECTOR_MAP = {
     "gent": BasicElementExemplarSelector,
     "gents": SizedElementExemplarSelector,
@@ -236,6 +238,7 @@ SELECTOR_MAP = {
     "content": ContentAwareExemplarSelector,
     "text": TextToLayoutExemplarSelector,
     "pptlayout": PowerPointExemplarSelector,
+    # "pptrefinement": PowerPointRefinementExemplarSelector,
 }
 
 

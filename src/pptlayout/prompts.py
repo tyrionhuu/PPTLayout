@@ -8,6 +8,11 @@ PREAMBLE = (
     "Canvas Size: canvas width is {}px, canvas height is {}px"
 )
 
+TASK = (
+    "Please generate a powerpoint layout in html format based on the given layout information in html format. "
+    "You need to ensure that the generated layout looks realistic, with elements well aligned and avoiding unnecessary overlap."
+)
+
 
 def build_prompt(
     serializer,
@@ -26,6 +31,7 @@ def build_prompt(
             *canvas_size(dataset, pptx_path),
         )
     ]
+    prompt.append(TASK)
     for i in range(len(exemplars)):
         _prompt = (
             serializer.build_input(exemplars[i])

@@ -16,6 +16,7 @@ class OllamaClient:
     ):
         return ollama.generate(
             model=self.model_name,
+            system="You are a helpful powerpoint layout generator",
             prompt=prompt,
             options=Options(
                 temperature=temperature,

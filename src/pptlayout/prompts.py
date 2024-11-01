@@ -21,7 +21,7 @@ def build_prompt(
     exemplars,
     test_data,
     dataset,
-    max_length=10000,
+    max_length=80000,
     separator_in_samples="\n----------------------------------------------\n",
     separator_between_samples="\n############################################\n",
     pptx_path=None,

@@ -6,7 +6,7 @@ class BaseShapeHandler:
         self._shape = shape
         self._shape_type = shape.shape_type
         self._shape_id = shape.shape_id
-        self._shape_name = shape.name
+        self._name = shape.name
         self._height = shape.height
         self._width = shape.width
         self._left = shape.left

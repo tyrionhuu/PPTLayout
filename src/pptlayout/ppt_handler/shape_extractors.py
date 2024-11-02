@@ -1,12 +1,12 @@
 from typing import Union
 
-from pptx.enum.shapes import MSO_SHAPE_TYPE
-from pptx.shapes.base import BaseShape
+from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE
+from pptx.shapes import autoshape, base
 from pptx.util import Length
 
 
 class BaseShapeExtractor:
-    def __init__(self, shape: BaseShape, measurement_unit: str = "pt"):
+    def __init__(self, shape: base.BaseShape, measurement_unit: str = "pt"):
         self._shape = shape
         self.measurement_unit = measurement_unit
 
@@ -55,3 +55,27 @@ class BaseShapeExtractor:
             "left": self._extract_left(),
             "top": self._extract_top(),
         }
+
+
+class AutoShapeExtractor(BaseShapeExtractor):
+    def __init__(self, shape: autoshape.Shape, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
+
+    def _extract_auto_shape_type(self) -> str:
+        auto_shape_type = self._shape.auto_shape_type  # type: ignore[attr-defined]
+        # Check if the shape type is a valid MSO_AUTO_SHAPE_TYPE enum member
+        if isinstance(auto_shape_type, MSO_AUTO_SHAPE_TYPE):
+            return auto_shape_type.name
+        raise AttributeError("Shape is not an auto shape")
+
+    def _extract_text(self) -> str:
+        if self._shape.has_text_frame:
+            return self._shape.text  # type: ignore[attr-defined]
+        raise AttributeError("Shape does not have a text frame")
+
+    def extract_shape(self) -> dict:
+        shape_data = super().extract_shape()
+        shape_data["auto_shape_type"] = self._extract_auto_shape_type()
+        if self._shape.has_text_frame:
+            shape_data["text"] = self._extract_text()
+        return shape_data

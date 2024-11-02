@@ -1,4 +1,6 @@
+from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.shapes.base import BaseShape
+from pptx.util import Length
 
 
 class BaseShapeHandler:
@@ -13,29 +15,29 @@ class BaseShapeHandler:
         self._top = shape.top
 
     @property
-    def shape_type(self):
+    def shape_type(self) -> MSO_SHAPE_TYPE:
         return self._shape_type
 
     @property
-    def shape_id(self):
+    def shape_id(self) -> int:
         return self._shape_id
 
     @property
-    def shape_name(self):
-        return self._shape_name
+    def name(self) -> str:
+        return self._name
 
     @property
-    def height(self):
+    def height(self) -> Length:
         return self._height
 
     @property
-    def width(self):
+    def width(self) -> Length:
         return self._width
 
     @property
-    def left(self):
+    def left(self) -> Length:
         return self._left
 
     @property
-    def top(self):
+    def top(self) -> Length:
         return self._top

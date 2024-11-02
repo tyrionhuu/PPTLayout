@@ -25,6 +25,7 @@ data/
 .mypy_cache/
 .pytest_cache
 layoutprompter.egg-info
+.ipynb_checkpoints
 
 # My things
 presentations

@@ -1,7 +1,7 @@
 from typing import Union
 
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE
-from pptx.shapes import autoshape, base
+from pptx.shapes import autoshape, base, connector
 from pptx.util import Length
 
 
@@ -78,4 +78,29 @@ class AutoShapeExtractor(BaseShapeExtractor):
         shape_data["auto_shape_type"] = self._extract_auto_shape_type()
         if self._shape.has_text_frame:
             shape_data["text"] = self._extract_text()
+        return shape_data
+
+
+class ConnectorHandler(BaseShapeExtractor):
+    def __init__(self, shape: connector.Connector, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
+
+    def _extract_begin_x(self) -> Union[int, float]:
+        return self._unit_conversion(self._shape.begin_x, self.measurement_unit)  # type: ignore[attr-defined]
+
+    def _extract_begin_y(self) -> Union[int, float]:
+        return self._unit_conversion(self._shape.begin_y, self.measurement_unit)  # type: ignore[attr-defined]
+
+    def _extract_end_x(self) -> Union[int, float]:
+        return self._unit_conversion(self._shape.end_x, self.measurement_unit)  # type: ignore[attr-defined]
+
+    def _extract_end_y(self) -> Union[int, float]:
+        return self._unit_conversion(self._shape.end_y, self.measurement_unit)  # type: ignore[attr-defined]
+
+    def extract_shape(self) -> dict:
+        shape_data = super().extract_shape()
+        shape_data["begin_x"] = self._extract_begin_x()
+        shape_data["begin_y"] = self._extract_begin_y()
+        shape_data["end_x"] = self._extract_end_x()
+        shape_data["end_y"] = self._extract_end_y()
         return shape_data

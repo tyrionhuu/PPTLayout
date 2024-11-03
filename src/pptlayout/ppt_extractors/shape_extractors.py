@@ -140,3 +140,6 @@ class PictureExtractor(BaseShapeExtractor):
 class GraphicFrameExtractor(BaseShapeExtractor):
     def __init__(self, shape: GraphicFrame, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
+
+    def _extract_graphic_frame(self) -> str:
+        return self._shape.graphic_frame  # type: ignore[attr-defined]

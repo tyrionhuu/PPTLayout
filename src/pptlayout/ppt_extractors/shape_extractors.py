@@ -152,3 +152,8 @@ class GraphicFrameExtractor(BaseShapeExtractor):
 class GroupShapeExtractor(BaseShapeExtractor):
     def __init__(self, shape: GroupShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
+
+
+class PlaceholderExtractor(BaseShapeExtractor):
+    def __init__(self, shape: BaseShape, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)

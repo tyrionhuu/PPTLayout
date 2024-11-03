@@ -5,6 +5,7 @@ from pptx.shapes.autoshape import Shape as AutoShape
 from pptx.shapes.base import BaseShape
 from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
+from pptx.shapes.group import GroupShape
 from pptx.shapes.picture import Picture
 from pptx.util import Length
 
@@ -146,3 +147,8 @@ class GraphicFrameExtractor(BaseShapeExtractor):
         shape_data["has_chart"] = self._shape.has_chart
         shape_data["has_table"] = self._shape.has_table
         return shape_data
+
+
+class GroupShapeExtractor(BaseShapeExtractor):
+    def __init__(self, shape: GroupShape, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)

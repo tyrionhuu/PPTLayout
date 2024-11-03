@@ -141,5 +141,8 @@ class GraphicFrameExtractor(BaseShapeExtractor):
     def __init__(self, shape: GraphicFrame, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
-    def _extract_graphic_frame(self) -> str:
-        return self._shape.graphic_frame  # type: ignore[attr-defined]
+    def _extract_shape(self) -> dict:
+        shape_data = super().extract_shape()
+        shape_data["has_chart"] = self._shape.has_chart
+        shape_data["has_table"] = self._shape.has_table
+        return shape_data

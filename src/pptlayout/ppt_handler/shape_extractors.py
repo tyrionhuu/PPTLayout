@@ -4,6 +4,7 @@ from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE
 from pptx.shapes.autoshape import Shape as AutoShape
 from pptx.shapes.base import BaseShape
 from pptx.shapes.connector import Connector
+from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.picture import Picture
 from pptx.util import Length
 
@@ -110,7 +111,8 @@ class ConnectorExtractor(BaseShapeExtractor):
 
 
 class FreeformExtractor(BaseShapeExtractor):
-    pass
+    def __init__(self, shape: BaseShape, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
 
 
 class PictureExtractor(BaseShapeExtractor):
@@ -133,3 +135,8 @@ class PictureExtractor(BaseShapeExtractor):
             shape_data["auto_shape_type"] = self._extract_auto_shape_type()
         shape_data["blob_str"] = self._extract_blob_str()
         return shape_data
+
+
+class GraphicFrameExtractor(BaseShapeExtractor):
+    def __init__(self, shape: GraphicFrame, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)

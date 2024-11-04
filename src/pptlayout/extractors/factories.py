@@ -66,8 +66,10 @@ SHAPE_EXTRACTOR_MAP = {
 DEFAULT_EXTRACTOR = BaseShapeExtractor
 
 
-def shape_extractor_factory(shape: Shape) -> ShapeExtractor:
+def shape_extractor_factory(
+    shape: Shape, measurement_unit: str = "pt"
+) -> ShapeExtractor:
     """Factory function to create a shape extractor based on the shape type."""
     shape_type = shape.shape_type
     extractor = SHAPE_EXTRACTOR_MAP.get(shape_type, DEFAULT_EXTRACTOR)
-    return extractor(shape)
+    return extractor(shape, measurement_unit)

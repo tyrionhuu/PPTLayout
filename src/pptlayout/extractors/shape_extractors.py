@@ -175,3 +175,17 @@ class GraphicFrameExtractor(BaseShapeExtractor):
 class GroupShapeExtractor(BaseShapeExtractor):
     def __init__(self, shape: GroupShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
+
+    def _extract_group_shapes(self) -> list:
+        from .factories import (
+            shape_extractor_factory,  # Local import to avoid circular import
+        )
+
+        group_shape_data = []
+
+        for nested_shape in self._shape.shapes:  # type: ignore[attr-defined]
+            extractor = shape_extractor_factory(nested_shape, self.measurement_unit)
+            shape_data = extractor.extract_shape()
+            group_shape_data.append(shape_data)
+
+        return group_shape_data

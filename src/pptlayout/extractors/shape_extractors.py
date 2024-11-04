@@ -1,12 +1,13 @@
 from typing import Union
 
-from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE
+from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE, PP_PLACEHOLDER_TYPE
 from pptx.shapes.autoshape import Shape as AutoShape
 from pptx.shapes.base import BaseShape
 from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
 from pptx.shapes.picture import Picture
+from pptx.shapes.placeholder import BasePlaceholder
 from pptx.util import Length
 
 
@@ -71,7 +72,7 @@ class AutoShapeExtractor(BaseShapeExtractor):
         # Check if the shape type is a valid MSO_AUTO_SHAPE_TYPE enum member
         if isinstance(auto_shape_type, MSO_AUTO_SHAPE_TYPE):
             return auto_shape_type.name
-        raise AttributeError("Shape is not an auto shape")
+        raise AttributeError("Unknown auto shape type")
 
     def _extract_text(self) -> str:
         if self._shape.has_text_frame:
@@ -111,8 +112,8 @@ class ConnectorExtractor(BaseShapeExtractor):
         return shape_data
 
 
-class FreeformExtractor(BaseShapeExtractor):
-    def __init__(self, shape: BaseShape, measurement_unit: str = "pt"):
+class FreeformExtractor(AutoShapeExtractor):
+    def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
 
@@ -154,6 +155,18 @@ class GroupShapeExtractor(BaseShapeExtractor):
         super().__init__(shape, measurement_unit)
 
 
-class PlaceholderExtractor(BaseShapeExtractor):
-    def __init__(self, shape: BaseShape, measurement_unit: str = "pt"):
+class PlaceholderExtractor(AutoShapeExtractor):
+    def __init__(self, shape: BasePlaceholder, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
+
+    def _extract_placeholder_type(self) -> str:
+        placeholder_type = self._shape.ph_type  # type: ignore[attr-defined]
+        # Check if the placeholder type is a valid PP_PLACEHOLDER_TYPE enum member
+        if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
+            return placeholder_type.name
+        raise AttributeError("Unknown placeholder type")
+
+    def extract_shape(self) -> dict:
+        shape_data = super().extract_shape()
+        shape_data["placeholder_type"] = self._extract_placeholder_type()
+        return shape_data

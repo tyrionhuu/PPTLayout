@@ -3,7 +3,7 @@ from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.shapes import autoshape
 
-from src.pptlayout.ppt_extractors.shape_extractors import (
+from src.pptlayout.extractors.shape_extractors import (
     AutoShapeExtractor,
     BaseShapeExtractor,
 )

@@ -51,15 +51,8 @@ class BaseShapeExtractor:
 
 
 class BaseAutoShapeExtractor(BaseShapeExtractor):
-    def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
+    def __init__(self, shape: AutoShape, measurement_unit="pt"):
         super().__init__(shape, measurement_unit)
-
-    def _extract_auto_shape_type(self) -> str:
-        auto_shape_type = self._shape.auto_shape_type  # type: ignore[attr-defined]
-        # Check if the shape type is a valid MSO_AUTO_SHAPE_TYPE enum member
-        if isinstance(auto_shape_type, MSO_AUTO_SHAPE_TYPE):
-            return auto_shape_type.name
-        raise AttributeError("Unknown auto shape type")
 
     def _extract_text(self) -> str:
         if self._shape.has_text_frame:
@@ -68,7 +61,6 @@ class BaseAutoShapeExtractor(BaseShapeExtractor):
 
     def extract_shape(self) -> dict:
         shape_data = super().extract_shape()
-        shape_data["auto_shape_type"] = self._extract_auto_shape_type()
         if self._shape.has_text_frame:
             shape_data["text"] = self._extract_text()
         return shape_data
@@ -78,16 +70,23 @@ class PlaceholderExtractor(BaseAutoShapeExtractor):
     def __init__(self, shape: BasePlaceholder, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
-    def _extract_placeholder_type(self) -> str:
-        placeholder_type = self._shape.ph_type  # type: ignore[attr-defined]
-        # Check if the placeholder type is a valid PP_PLACEHOLDER_TYPE enum member
-        if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
-            return placeholder_type.name
-        raise AttributeError("Unknown placeholder type")
+    # def _extract_placeholder_type(self) -> str:
+    #     placeholder_type = self._shape.ph_type  # type: ignore[attr-defined]
+    #     # Check if the placeholder type is a valid PP_PLACEHOLDER_TYPE enum member
+    #     if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
+    #         return placeholder_type.name
+    #     raise AttributeError("Unknown placeholder type")
+
+    def _extract_placeholder_format(self) -> str:
+        placeholder_format = self._shape.placeholder_format
+        # Check if the placeholder format is a valid PP_PLACEHOLDER_TYPE enum member
+        if isinstance(placeholder_format, PP_PLACEHOLDER_TYPE):
+            return placeholder_format.name
+        raise AttributeError("Unknown placeholder format")
 
     def extract_shape(self) -> dict:
         shape_data = super().extract_shape()
-        shape_data["placeholder_type"] = self._extract_placeholder_type()
+        shape_data["placeholder_type"] = self._extract_placeholder_format()
         return shape_data
 
 
@@ -131,15 +130,15 @@ class PictureExtractor(BaseShapeExtractor):
     def _extract_filename(self) -> str | None:
         return self._shape.image.filename  # type: ignore[attr-defined]
 
-    def _extract_blob_str(self) -> str:
-        blob = self._shape.image.blob  # type: ignore[attr-defined]
-        return blob.decode("utf-8")
+    # def _extract_blob_str(self) -> str:
+    #     blob = self._shape.image.blob  # type: ignore[attr-defined]
+    #     return base64.b64encode(blob)
 
     def extract_shape(self) -> dict:
         shape_data = super().extract_shape()
         if self._extract_auto_shape_type() is not None:
             shape_data["auto_shape_type"] = self._extract_auto_shape_type()
-        shape_data["blob_str"] = self._extract_blob_str()
+        # shape_data["blob_str"] = self._extract_blob_str()
         return shape_data
 
 

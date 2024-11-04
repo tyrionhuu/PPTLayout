@@ -1,5 +1,3 @@
-from typing import Union
-
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE, MSO_SHAPE_TYPE, PP_PLACEHOLDER_TYPE
 from pptx.shapes.autoshape import Shape as AutoShape
 from pptx.shapes.base import BaseShape
@@ -8,7 +6,8 @@ from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
 from pptx.shapes.picture import Movie, Picture
 from pptx.shapes.placeholder import BasePlaceholder
-from pptx.util import Length
+
+from pptlayout.utils import unit_conversion
 
 
 class BaseShapeExtractor:
@@ -23,29 +22,17 @@ class BaseShapeExtractor:
             return shape_type.name  # Returns the name of the enum member
         return str(shape_type)  # Fallback in case it's not in the enum
 
-    def _unit_conversion(self, value: Length, unit: str) -> Union[int, float]:
-        if unit == "cm":
-            return value.cm
-        elif unit == "inches" or unit == "in" or unit == "inch":
-            return value.inches
-        elif unit == "pt":
-            return value.pt
-        elif unit == "emu":
-            return value.emu
-        else:
-            raise ValueError(f"Invalid measurement unit: {unit}")
+    def _extract_height(self) -> int | float:
+        return unit_conversion(self._shape.height, self.measurement_unit)
 
-    def _extract_height(self) -> Union[int, float]:
-        return self._unit_conversion(self._shape.height, self.measurement_unit)
+    def _extract_width(self) -> int | float:
+        return unit_conversion(self._shape.width, self.measurement_unit)
 
-    def _extract_width(self) -> Union[int, float]:
-        return self._unit_conversion(self._shape.width, self.measurement_unit)
+    def _extract_left(self) -> int | float:
+        return unit_conversion(self._shape.left, self.measurement_unit)
 
-    def _extract_left(self) -> Union[int, float]:
-        return self._unit_conversion(self._shape.left, self.measurement_unit)
-
-    def _extract_top(self) -> Union[int, float]:
-        return self._unit_conversion(self._shape.top, self.measurement_unit)
+    def _extract_top(self) -> int | float:
+        return unit_conversion(self._shape.top, self.measurement_unit)
 
     def set_measurement_unit(self, unit: str) -> None:
         self.measurement_unit = unit
@@ -113,16 +100,16 @@ class ConnectorExtractor(BaseShapeExtractor):
     def __init__(self, shape: Connector, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
-    def _extract_begin_x(self) -> Union[int, float]:
+    def _extract_begin_x(self) -> int | float:
         return self._unit_conversion(self._shape.begin_x, self.measurement_unit)  # type: ignore[attr-defined]
 
-    def _extract_begin_y(self) -> Union[int, float]:
+    def _extract_begin_y(self) -> int | float:
         return self._unit_conversion(self._shape.begin_y, self.measurement_unit)  # type: ignore[attr-defined]
 
-    def _extract_end_x(self) -> Union[int, float]:
+    def _extract_end_x(self) -> int | float:
         return self._unit_conversion(self._shape.end_x, self.measurement_unit)  # type: ignore[attr-defined]
 
-    def _extract_end_y(self) -> Union[int, float]:
+    def _extract_end_y(self) -> int | float:
         return self._unit_conversion(self._shape.end_y, self.measurement_unit)  # type: ignore[attr-defined]
 
     def extract_shape(self) -> dict:

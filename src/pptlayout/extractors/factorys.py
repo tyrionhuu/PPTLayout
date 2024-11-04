@@ -6,27 +6,29 @@ from pptx.shapes.base import BaseShape
 from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
-from pptx.shapes.picture import Picture
+from pptx.shapes.picture import Movie, Picture
 from pptx.shapes.placeholder import BasePlaceholder
 
 from .shape_extractors import (
-    AutoShapeExtractor,
+    BaseAutoShapeExtractor,
     BaseShapeExtractor,
     ConnectorExtractor,
     FreeformExtractor,
     GraphicFrameExtractor,
     GroupShapeExtractor,
+    MovieExtractor,
     PictureExtractor,
     PlaceholderExtractor,
 )
 
 ShapeExtractor: TypeAlias = Union[
     BaseShapeExtractor,
-    AutoShapeExtractor,
+    BaseAutoShapeExtractor,
     ConnectorExtractor,
     FreeformExtractor,
     GroupShapeExtractor,
     PictureExtractor,
+    MovieExtractor,
     PlaceholderExtractor,
 ]
 
@@ -37,13 +39,14 @@ Shape: TypeAlias = Union[
     GraphicFrame,
     GroupShape,
     Picture,
+    Movie,
     BasePlaceholder,
 ]
 
 SHAPE_EXTRACTOR_MAP = {
     # Auto Shape
-    MSO_SHAPE_TYPE.AUTO_SHAPE: AutoShapeExtractor,
-    MSO_SHAPE_TYPE.TEXT_BOX: AutoShapeExtractor,
+    MSO_SHAPE_TYPE.AUTO_SHAPE: BaseAutoShapeExtractor,
+    MSO_SHAPE_TYPE.TEXT_BOX: BaseAutoShapeExtractor,
     MSO_SHAPE_TYPE.FREEFORM: FreeformExtractor,
     MSO_SHAPE_TYPE.PLACEHOLDER: PlaceholderExtractor,
     # Graphic Frame
@@ -53,6 +56,7 @@ SHAPE_EXTRACTOR_MAP = {
     MSO_SHAPE_TYPE.EMBEDDED_OLE_OBJECT: GraphicFrameExtractor,
     # Picture
     MSO_SHAPE_TYPE.PICTURE: PictureExtractor,
+    MSO_SHAPE_TYPE.MEDIA: MovieExtractor,
     # Connector
     MSO_SHAPE_TYPE.LINE: ConnectorExtractor,
     # Group Shape

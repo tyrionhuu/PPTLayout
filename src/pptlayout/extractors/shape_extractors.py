@@ -6,7 +6,7 @@ from pptx.shapes.base import BaseShape
 from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
-from pptx.shapes.picture import Picture
+from pptx.shapes.picture import Movie, Picture
 from pptx.shapes.placeholder import BasePlaceholder
 from pptx.util import Length
 
@@ -63,7 +63,7 @@ class BaseShapeExtractor:
         }
 
 
-class AutoShapeExtractor(BaseShapeExtractor):
+class BaseAutoShapeExtractor(BaseShapeExtractor):
     def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
@@ -85,6 +85,28 @@ class AutoShapeExtractor(BaseShapeExtractor):
         if self._shape.has_text_frame:
             shape_data["text"] = self._extract_text()
         return shape_data
+
+
+class PlaceholderExtractor(BaseAutoShapeExtractor):
+    def __init__(self, shape: BasePlaceholder, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
+
+    def _extract_placeholder_type(self) -> str:
+        placeholder_type = self._shape.ph_type  # type: ignore[attr-defined]
+        # Check if the placeholder type is a valid PP_PLACEHOLDER_TYPE enum member
+        if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
+            return placeholder_type.name
+        raise AttributeError("Unknown placeholder type")
+
+    def extract_shape(self) -> dict:
+        shape_data = super().extract_shape()
+        shape_data["placeholder_type"] = self._extract_placeholder_type()
+        return shape_data
+
+
+class FreeformExtractor(BaseAutoShapeExtractor):
+    def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
 
 
 class ConnectorExtractor(BaseShapeExtractor):
@@ -112,11 +134,6 @@ class ConnectorExtractor(BaseShapeExtractor):
         return shape_data
 
 
-class FreeformExtractor(AutoShapeExtractor):
-    def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
-        super().__init__(shape, measurement_unit)
-
-
 class PictureExtractor(BaseShapeExtractor):
     def __init__(self, shape: Picture, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
@@ -139,6 +156,11 @@ class PictureExtractor(BaseShapeExtractor):
         return shape_data
 
 
+class MovieExtractor(BaseShapeExtractor):
+    def __init__(self, shape: Movie, measurement_unit: str = "pt"):
+        super().__init__(shape, measurement_unit)
+
+
 class GraphicFrameExtractor(BaseShapeExtractor):
     def __init__(self, shape: GraphicFrame, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
@@ -153,20 +175,3 @@ class GraphicFrameExtractor(BaseShapeExtractor):
 class GroupShapeExtractor(BaseShapeExtractor):
     def __init__(self, shape: GroupShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
-
-
-class PlaceholderExtractor(AutoShapeExtractor):
-    def __init__(self, shape: BasePlaceholder, measurement_unit: str = "pt"):
-        super().__init__(shape, measurement_unit)
-
-    def _extract_placeholder_type(self) -> str:
-        placeholder_type = self._shape.ph_type  # type: ignore[attr-defined]
-        # Check if the placeholder type is a valid PP_PLACEHOLDER_TYPE enum member
-        if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
-            return placeholder_type.name
-        raise AttributeError("Unknown placeholder type")
-
-    def extract_shape(self) -> dict:
-        shape_data = super().extract_shape()
-        shape_data["placeholder_type"] = self._extract_placeholder_type()
-        return shape_data

@@ -4,7 +4,7 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.shapes import autoshape
 
 from src.pptlayout.extractors.shape_extractors import (
-    AutoShapeExtractor,
+    BaseAutoShapeExtractor,
     BaseShapeExtractor,
 )
 
@@ -74,7 +74,7 @@ def test_extract_shape(pptx_presentation):
 def test_extract_auto_shapes(pptx_presentation):
     """Test to check the extraction of auto shapes from the presentation."""
     auto_shape = get_auto_shape_from_pptx(pptx_presentation)
-    print(AutoShapeExtractor(auto_shape, measurement_unit="inches").extract_shape())
+    print(BaseAutoShapeExtractor(auto_shape, measurement_unit="inches").extract_shape())
     # Assert that auto shapes are extracted
     assert auto_shape is not None, "No auto shapes found in the presentation."
 

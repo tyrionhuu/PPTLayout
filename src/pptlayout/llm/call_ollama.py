@@ -1,14 +1,35 @@
 import ollama
 from ollama import Options
 
+# def call_ollama(
+#     model_name: str = "llama3.1:8b", prompt: str = "", options: Options | None = None
+# ) -> str:
+#     response = ollama.generate(
+#         model=model_name,
+#         system="You are a helpful html Powerpoint layout generator",
+#         prompt=prompt,
+#         options=options,
+#     )["response"]
+#     return response
+
 
 def call_ollama(
-    model_name: str = "llama3.1:8b", prompt: str = "", options: Options | None = None
+    model_name: str = "llama3.1:8b",
+    prompt: str = "",
+    temperature: float = 0.5,
+    max_tokens: int = 128000,
+    top_p: float = 1.0,
 ) -> str:
-    response = ollama.generate(
+    options = Options(temperature=temperature, num_ctx=max_tokens, top_p=top_p)
+    response = ollama.chat(
         model=model_name,
-        system="You are a helpful html Powerpoint layout generator",
-        prompt=prompt,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a helpful json Powerpoint layout generator",
+            },
+            {"role": "user", "content": prompt},
+        ],
         options=options,
-    )["response"]
+    )["message"]["content"]
     return response

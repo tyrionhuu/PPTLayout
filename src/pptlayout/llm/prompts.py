@@ -10,3 +10,7 @@ layout_suggestion_prompts = (
     + "{}"
     + "\n```"
 )
+
+
+def build_layout_suggestion_prompts(json_input: str) -> str:
+    return layout_suggestion_prompts.format(json_input)

@@ -1,5 +1,6 @@
 import ollama
-from ollama import Options
+
+# from ollama import Options
 
 # def call_ollama(
 #     model_name: str = "llama3.1:8b", prompt: str = "", options: Options | None = None
@@ -17,10 +18,10 @@ def call_ollama(
     model_name: str = "llama3.1:8b",
     prompt: str = "",
     temperature: float = 0.5,
-    max_tokens: int = 128000,
+    max_tokens: int = 32000,
     top_p: float = 1.0,
 ) -> str:
-    options = Options(temperature=temperature, num_ctx=max_tokens, top_p=top_p)
+    # options = Options(temperature=temperature, num_ctx=max_tokens, top_p=top_p)
     response = ollama.chat(
         model=model_name,
         messages=[
@@ -30,6 +31,6 @@ def call_ollama(
             },
             {"role": "user", "content": prompt},
         ],
-        options=options,
+        # options=options,
     )["message"]["content"]
     return response

@@ -12,12 +12,12 @@ from .ppt_extractor import PowerPointShapeExtractor
 # shape_extractor = PowerPointShapeExtractor(ppt)
 # extracted_info = shape_extractor.extract_ppt()
 # print(dumps(extracted_info, indent=4))
-def run_extractors(pptx_path: str) -> dict:
+def run_extractors(pptx_path: str, measurement_unit: str = "emu") -> dict:
     if not pptx_path:
         raise ValueError("pptx_path is required")
     if not os.path.exists(pptx_path):
         raise FileNotFoundError(f"File not found: {pptx_path}")
     ppt = Presentation(pptx_path)
-    shape_extractor = PowerPointShapeExtractor(ppt)
+    shape_extractor = PowerPointShapeExtractor(ppt, measurement_unit)
     extracted_info = shape_extractor.extract_ppt()
     return extracted_info

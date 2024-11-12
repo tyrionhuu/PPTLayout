@@ -7,8 +7,9 @@ from .factories import shape_extractor_factory
 
 
 class SlideShapeExtractor:
-    def __init__(self, slide: Slide):
+    def __init__(self, slide: Slide, measurement_unit: str = "pt"):
         self._slide = slide
+        self._measurement_unit = measurement_unit
 
     def extract_slide_metadate(self) -> dict:
         return {
@@ -23,7 +24,7 @@ class SlideShapeExtractor:
         return shapes
 
     def _extract_shape(self, shape) -> dict:
-        extractor = shape_extractor_factory(shape)
+        extractor = shape_extractor_factory(shape, self._measurement_unit)
         return extractor.extract_shape()
 
     def extract_slide(self) -> dict:
@@ -52,7 +53,7 @@ class PowerPointShapeExtractor:
     def extract_slides(self) -> list:
         slides = []
         for slide in self._ppt.slides:
-            slide_extractor = SlideShapeExtractor(slide)
+            slide_extractor = SlideShapeExtractor(slide, self._measurement_unit)
             slides.append(slide_extractor.extract_slide())
         return slides
 

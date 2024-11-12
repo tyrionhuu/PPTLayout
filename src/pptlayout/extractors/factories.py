@@ -7,7 +7,6 @@ from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
 from pptx.shapes.picture import Movie, Picture
-from pptx.shapes.placeholder import BasePlaceholder
 
 from .shape_extractors import (
     BaseAutoShapeExtractor,
@@ -40,7 +39,6 @@ Shape: TypeAlias = Union[
     GroupShape,
     Picture,
     Movie,
-    BasePlaceholder,
 ]
 
 SHAPE_EXTRACTOR_MAP = {

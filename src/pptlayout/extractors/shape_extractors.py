@@ -5,7 +5,6 @@ from pptx.shapes.connector import Connector
 from pptx.shapes.graphfrm import GraphicFrame
 from pptx.shapes.group import GroupShape
 from pptx.shapes.picture import Movie, Picture
-from pptx.shapes.placeholder import BasePlaceholder
 
 from pptlayout.utils import unit_conversion
 
@@ -23,19 +22,19 @@ class BaseShapeExtractor:
         return str(shape_type)  # Fallback in case it's not in the enum
 
     def extract_height(self) -> int | float:
-        return unit_conversion(self._shape.height, self.measurement_unit)
+        return unit_conversion(self._shape.height, self._measurement_unit)
 
     def extract_width(self) -> int | float:
-        return unit_conversion(self._shape.width, self.measurement_unit)
+        return unit_conversion(self._shape.width, self._measurement_unit)
 
     def extract_left(self) -> int | float:
-        return unit_conversion(self._shape.left, self.measurement_unit)
+        return unit_conversion(self._shape.left, self._measurement_unit)
 
     def extract_top(self) -> int | float:
-        return unit_conversion(self._shape.top, self.measurement_unit)
+        return unit_conversion(self._shape.top, self._measurement_unit)
 
     def set_measurement_unit(self, unit: str) -> None:
-        self.measurement_unit = unit
+        self._measurement_unit = unit
 
     def extract_shape(self) -> dict:
         return {
@@ -67,7 +66,7 @@ class BaseAutoShapeExtractor(BaseShapeExtractor):
 
 
 class PlaceholderExtractor(BaseAutoShapeExtractor):
-    def __init__(self, shape: BasePlaceholder, measurement_unit: str = "pt"):
+    def __init__(self, shape: AutoShape, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
     # def _extract_placeholder_type(self) -> str:
@@ -79,9 +78,10 @@ class PlaceholderExtractor(BaseAutoShapeExtractor):
 
     def extract_placeholder_format(self) -> str:
         placeholder_format = self._shape.placeholder_format
-        # Check if the placeholder format is a valid PP_PLACEHOLDER_TYPE enum member
-        if isinstance(placeholder_format, PP_PLACEHOLDER_TYPE):
-            return placeholder_format.name
+        if hasattr(placeholder_format, "type"):
+            placeholder_type = placeholder_format.type
+            if isinstance(placeholder_type, PP_PLACEHOLDER_TYPE):
+                return placeholder_type.name
         raise AttributeError("Unknown placeholder format")
 
     def extract_shape(self) -> dict:
@@ -100,16 +100,16 @@ class ConnectorExtractor(BaseShapeExtractor):
         super().__init__(shape, measurement_unit)
 
     def extract_begin_x(self) -> int | float:
-        return unit_conversion(self._shape.begin_x, self.measurement_unit)  # type: ignore[attr-defined]
+        return unit_conversion(self._shape.begin_x, self._measurement_unit)  # type: ignore[attr-defined]
 
     def extract_begin_y(self) -> int | float:
-        return unit_conversion(self._shape.begin_y, self.measurement_unit)  # type: ignore[attr-defined]
+        return unit_conversion(self._shape.begin_y, self._measurement_unit)  # type: ignore[attr-defined]
 
     def extract_end_x(self) -> int | float:
-        return unit_conversion(self._shape.end_x, self.measurement_unit)  # type: ignore[attr-defined]
+        return unit_conversion(self._shape.end_x, self._measurement_unit)  # type: ignore[attr-defined]
 
     def extract_end_y(self) -> int | float:
-        return unit_conversion(self._shape.end_y, self.measurement_unit)  # type: ignore[attr-defined]
+        return unit_conversion(self._shape.end_y, self._measurement_unit)  # type: ignore[attr-defined]
 
     def extract_shape(self) -> dict:
         shape_data = super().extract_shape()
@@ -170,7 +170,7 @@ class GroupShapeExtractor(BaseShapeExtractor):
         group_shape_data = []
 
         for nested_shape in self._shape.shapes:  # type: ignore[attr-defined]
-            extractor = shape_extractor_factory(nested_shape, self.measurement_unit)
+            extractor = shape_extractor_factory(nested_shape, self._measurement_unit)
             shape_data = extractor.extract_shape()
             group_shape_data.append(shape_data)
 

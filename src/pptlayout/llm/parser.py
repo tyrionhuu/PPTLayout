@@ -2,11 +2,27 @@ import json
 import re
 
 
+class LazyDecoder(json.JSONDecoder):
+    def decode(self, s, **kwargs):
+        regex_replacements = [
+            (re.compile(r"([^\\])\\([^\\])"), r"\1\\\\\2"),
+            (re.compile(r",(\s*])"), r"\1"),
+        ]
+        for regex, replacement in regex_replacements:
+            s = regex.sub(replacement, s)
+        return super().decode(s, **kwargs)
+
+
 def sanitize_json_string(json_string: str) -> str:
-    """Sanitize the JSON string by escaping special characters and ensuring valid JSON format."""
-    sanitized_string = re.sub(
-        r"[\x00-\x1F\x7F]", " ", json_string
-    )  # Remove control characters
+    """Sanitize the JSON string by removing comments, escaping special characters, and ensuring valid JSON format."""
+
+    # Remove comments (anything following // until the end of the line)
+    sanitized_string = re.sub(r"//.*", "", json_string)
+
+    # Remove control characters
+    sanitized_string = re.sub(r"[\x00-\x1F\x7F]", " ", sanitized_string)
+
+    # Escape newline characters for consistency
     sanitized_string = re.sub(r"\n", "\\n", sanitized_string)
 
     return sanitized_string
@@ -24,7 +40,7 @@ def extract_json_with_markers(text: str) -> dict | None:
         json_string = sanitize_json_string(json_string)  # Sanitize the JSON string
         print(json_string)
         try:
-            json_data = json.loads(json_string)
+            json_data = json.loads(json_string, cls=LazyDecoder)
             return json_data
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON after sanitization: {e}")
@@ -43,7 +59,7 @@ def extract_json_with_regex(text: str) -> dict | None:
         json_string = sanitize_json_string(json_string)  # Sanitize the JSON string
 
         try:
-            json_data = json.loads(json_string)
+            json_data = json.loads(json_string, cls=LazyDecoder)
             return json_data
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON after sanitization: {e}")

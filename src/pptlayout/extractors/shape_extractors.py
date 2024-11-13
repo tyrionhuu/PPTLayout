@@ -124,8 +124,11 @@ class PictureExtractor(BaseShapeExtractor):
     def __init__(self, shape: Picture, measurement_unit: str = "pt"):
         super().__init__(shape, measurement_unit)
 
-    def extract_auto_shape_type(self) -> MSO_AUTO_SHAPE_TYPE | None:
-        return self._shape.auto_shape_type  # type: ignore[attr-defined]
+    def extract_auto_shape_type(self) -> str | None:
+        auto_shape_type = self._shape.auto_shape_type  # type: ignore[attr-defined]
+        if isinstance(auto_shape_type, MSO_AUTO_SHAPE_TYPE):
+            return auto_shape_type.name
+        return None
 
     def extract_filename(self) -> str | None:
         return self._shape.image.filename  # type: ignore[attr-defined]

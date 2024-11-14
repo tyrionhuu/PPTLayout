@@ -9,7 +9,6 @@ def call_ollama(
     prompt: str = "",
     temperature: float = 0.5,
     max_tokens: int = 32000,
-    image_flag: bool = False,
     image: str | None = None,
     # top_p: float = 0.9,
 ) -> str:
@@ -18,6 +17,9 @@ def call_ollama(
         num_ctx=max_tokens,
         # top_p=top_p,
     )
+    image_flag = False
+    if image is not None:
+        image_flag = True
     if image_flag is False:
         response = ollama.chat(
             model=model_name,
@@ -67,7 +69,6 @@ def generate_slide_layout_suggestions(
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            image_flag=False,
         )
     else:
         if model_name is None:
@@ -77,6 +78,5 @@ def generate_slide_layout_suggestions(
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            image_flag=True,
             image=image,
         )

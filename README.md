@@ -50,3 +50,7 @@ It is not necessary but totally fine to use [Conda](https://docs.conda.io/en/lat
     ``` shell
     pre-commit install
     ```
+
+## Notes
+
+Python library `aspose.slides` need `.NET` runtime to work. Install it following the instructions [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual).

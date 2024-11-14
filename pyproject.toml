@@ -36,6 +36,7 @@ sympy = "1.13.1"
 jupyter = "^1.1.1"
 ollama = "^0.3.3"
 seaborn = "^0.13.2"
+aspose-slides = "^24.11.0"
 
 
 [[tool.poetry.source]]

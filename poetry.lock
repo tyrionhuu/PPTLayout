@@ -149,6 +149,25 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "mirrors"
 
 [[package]]
+name = "aspose-slides"
+version = "24.11.0"
+description = "Aspose.Slides for Python via .NET is a presentation file formats processing library for working with Microsoft PowerPoint files without using Microsoft PowerPoint."
+optional = false
+python-versions = ">=3.5,<3.14"
+files = [
+    {file = "Aspose.Slides-24.11.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:b4819364497f9e075e00e63ee8fba8745dda4c910e199d5201e4abeebdcdec89"},
+    {file = "Aspose.Slides-24.11.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:bbeb5f0b14901f29f209beeac694a183f8d36c9475556ddeed3b2edb8107536a"},
+    {file = "Aspose.Slides-24.11.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:24d6287401863de1251fb366be4845e1693ff1c70f09f04fed1e2086561401f5"},
+    {file = "Aspose.Slides-24.11.0-py3-none-win32.whl", hash = "sha256:9e07bcb1c6b17f01d51d9d9c88b1fbc40da580e54ccabb6373e884e64f406a8b"},
+    {file = "Aspose.Slides-24.11.0-py3-none-win_amd64.whl", hash = "sha256:2b249848a0432cd2746d94011fe6258038c04615ef8606ddd1bb238f5e9d4f2f"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+reference = "mirrors"
+
+[[package]]
 name = "asttokens"
 version = "2.4.1"
 description = "Annotate AST trees with source code positions"
@@ -5444,4 +5463,4 @@ reference = "mirrors"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "7cc5ad82ba41227395a904aea0f70f7220210a99fa43d706f034234620308986"
+content-hash = "cacb8910a09c636e1a74f310692dbe2022c19d45baf8bd654927adf653c2bb5b"

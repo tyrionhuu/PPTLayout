@@ -21,42 +21,54 @@ def call_ollama(
     if image is not None:
         image_flag = True
     if image_flag is False:
-        response = ollama.chat(
+        # response = ollama.chat(
+        #     model=model_name,
+        #     messages=[
+        #         {
+        #             "role": "system",
+        #             "content": "You are a helpful json Powerpoint layout generator",
+        #         },
+        #         {"role": "user", "content": prompt},
+        #     ],
+        #     options=options,
+        # )["message"]["content"]
+        response = ollama.generate(
             model=model_name,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful json Powerpoint layout generator",
-                },
-                {"role": "user", "content": prompt},
-            ],
+            prompt=prompt,
             options=options,
-        )["message"]["content"]
+        )["response"]
         return response
     else:
         if image is None:
             raise ValueError("image is None")
         if not os.path.exists(image):
             raise FileNotFoundError(f"image not found: {image}")
-        response = ollama.chat(
+        # response = ollama.chat(
+        #     model=model_name,
+        #     messages=[
+        #         {
+        #             "role": "system",
+        #             "content": "You are a helpful json Powerpoint layout generator",
+        #         },
+        #         {"role": "user", "content": prompt},
+        #         {"role": "user", "content": image},
+        #     ],
+        #     options=options,
+        # )["message"]["content"]
+        response = ollama.generate(
             model=model_name,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful json Powerpoint layout generator",
-                },
-                {"role": "user", "content": prompt},
-                {"role": "user", "content": image},
-            ],
+            prompt=prompt,
+            images=[image],
             options=options,
-        )["message"]["content"]
+            format="json",
+        )["response"]
         return response
 
 
 def generate_slide_layout_suggestions(
     model_name: str | None = None,
     prompt: str = "",
-    temperature: float = 0.5,
+    temperature: float = 0.8,
     max_tokens: int = 32000,
     image: str | None = None,
     # top_p: float = 0.9,

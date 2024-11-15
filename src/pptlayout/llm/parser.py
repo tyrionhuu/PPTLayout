@@ -1,5 +1,7 @@
 import json
-import re
+from typing import Union
+
+import regex as re
 
 
 class LazyDecoder(json.JSONDecoder):
@@ -40,7 +42,7 @@ def extract_json_with_markers(text: str) -> dict | None:
         json_string = sanitize_json_string(json_string)  # Sanitize the JSON string
         print(json_string)
         try:
-            json_data = json.loads(json_string, cls=LazyDecoder)
+            json_data = json.loads(json_string)
             return json_data
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON after sanitization: {e}")
@@ -50,22 +52,22 @@ def extract_json_with_markers(text: str) -> dict | None:
         return None
 
 
-def extract_json_with_regex(text: str) -> dict | None:
-    json_pattern = r"```json(.*?)```"
-    match = re.search(json_pattern, text, re.DOTALL)
+def extract_json_with_regex(text: str) -> Union[dict, None]:
+    # Regular expression to find JSON objects in the text (supports recursion)
+    json_pattern = r"\{(?:[^{}]|(?R))*\}"
+
+    # Search for the first JSON object match
+    match = re.search(json_pattern, text)
 
     if match:
-        json_string = match.group(1).strip()
-        json_string = sanitize_json_string(json_string)  # Sanitize the JSON string
-
         try:
-            json_data = json.loads(json_string, cls=LazyDecoder)
-            return json_data
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON after sanitization: {e}")
+            # Parse the JSON string and return it as a dictionary
+            return json.loads(match.group())
+        except json.JSONDecodeError:
+            print("Invalid JSON format detected.")
             return None
     else:
-        print("No JSON found in the text with markers.")
+        print("No JSON object found in the input text.")
         return None
 
 
@@ -74,5 +76,5 @@ def extract_json(text: str) -> dict | None:
     if json_data is None:
         json_data = extract_json_with_regex(text)
     if json_data is None:
-        json_data = {}
+        raise ValueError("No valid JSON object found in the input text.")
     return json_data

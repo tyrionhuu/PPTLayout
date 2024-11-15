@@ -9,7 +9,8 @@ def call_ollama(
     prompt: str = "",
     temperature: float = 0.5,
     max_tokens: int = 32000,
-    image: str | None = None,
+    images: list[str] | None = None,
+    json: bool = False,
     # top_p: float = 0.9,
 ) -> str:
     options = Options(
@@ -18,7 +19,7 @@ def call_ollama(
         # top_p=top_p,
     )
     image_flag = False
-    if image is not None:
+    if images is not None:
         image_flag = True
     if image_flag is False:
         # response = ollama.chat(
@@ -36,13 +37,15 @@ def call_ollama(
             model=model_name,
             prompt=prompt,
             options=options,
+            format="json" if json else "",
         )["response"]
         return response
     else:
-        if image is None:
+        if images is None:
             raise ValueError("image is None")
-        if not os.path.exists(image):
-            raise FileNotFoundError(f"image not found: {image}")
+        for image in images:
+            if not os.path.exists(image):
+                raise ValueError(f"Image file not found: {image}")
         # response = ollama.chat(
         #     model=model_name,
         #     messages=[
@@ -58,9 +61,9 @@ def call_ollama(
         response = ollama.generate(
             model=model_name,
             prompt=prompt,
-            images=[image],
+            images=images,
             options=options,
-            format="json",
+            format="json" if json else "",
         )["response"]
         return response
 
@@ -70,10 +73,10 @@ def generate_slide_layout_suggestions(
     prompt: str = "",
     temperature: float = 0.8,
     max_tokens: int = 32000,
-    image: str | None = None,
+    images: list[str] | None = None,
     # top_p: float = 0.9,
 ) -> str:
-    if image is None:
+    if images is None:
         if model_name is None:
             model_name = "llama3.1:8b"
         return call_ollama(
@@ -90,5 +93,5 @@ def generate_slide_layout_suggestions(
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            image=image,
+            images=images,
         )

@@ -57,7 +57,7 @@ def generate_with_image(
     max_tokens: int = 32000,
     images: list[str] | None = None,
     json: bool = False,
-):
+) -> str:
     model_name = get_model_name(model_name, images)
 
     if model_name == "Qwen2-VL-7B-Instruct":
@@ -65,7 +65,7 @@ def generate_with_image(
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            json=json,
+            # json=json,
             images=images,
         )
         return response
@@ -90,13 +90,13 @@ def generate_no_image(
     temperature: float = 0.5,
     max_tokens: int = 32000,
     json: bool = False,
-):
+) -> str:
     if model_name == "Qwen2-VL-7B-Instruct":
         response = generate_qwen2_vl(
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            json=json,
+            # json=json,
         )
         return response
     else:
@@ -117,20 +117,26 @@ def generate_qwen2_vl(
     prompt: str = "",
     temperature: float = 0.5,
     max_tokens: int = 32000,
-    json: bool = False,
+    # json: bool = False,
     images: list[str] | None = None,
-):
-    model_dir = os.path.abspath("/data/share_weight/Qwen2-VL-7B-Instruct")
+) -> str:
+    # model_dir = os.path.abspath("/data/tianyuhu/models/Qwen/Qwen2.5-Coder-7B-Instruct-GPTQ-Int4")
+    model_dir = "/data/share_weight/Qwen2-VL-7B-Instruct"
 
     # default: Load the model on the available device(s)
     model = Qwen2VLForConditionalGeneration.from_pretrained(
-        model_dir, torch_dtype="auto", device_map="auto"
+        model_dir,
+        torch_dtype="auto",
+        device_map="auto",
     )
-
-    processor = AutoProcessor.from_pretrained(model_dir)
+    min_pixels = 256 * 28 * 28
+    max_pixels = 1280 * 28 * 28
+    processor = AutoProcessor.from_pretrained(
+        model_dir, min_pixels=min_pixels, max_pixels=max_pixels
+    )
     messages = generate_qwen2_vl_message(images, prompt)
     text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+        str(messages), tokenize=False, add_generation_prompt=True
     )
     image_inputs, video_inputs = process_vision_info(messages)
     inputs = processor(
@@ -146,7 +152,7 @@ def generate_qwen2_vl(
         **inputs,
         max_new_tokens=max_tokens,
         temperature=temperature,
-        response_format={"type": "json_object"} if json else {"type": "text"},
+        # response_format={"type": "json_object"} if json else {"type": "text"},
     )
     generated_ids_trimmed = [
         out_ids[len(in_ids) :]

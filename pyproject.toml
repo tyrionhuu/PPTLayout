@@ -40,6 +40,9 @@ aspose-slides = "^24.11.0"
 transformers = "^4.46.2"
 qwen-vl-utils = "^0.0.8"
 accelerate = "^1.1.1"
+modelscope = "^1.20.1"
+optimum = "^1.23.3"
+auto-gptq = "^0.7.1"
 
 
 [[tool.poetry.source]]

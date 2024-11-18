@@ -14,8 +14,8 @@ slide_layout_suggestion_prompts = (
     + "```json\n"
     + "{}\n"
     + "```\n"
-    + "Some suggestions for the layout are: \n"
-    + "{}\n"
+    # + "Some suggestions for the layout are: \n"
+    # + "{}\n"
     + "Now generate the output JSON: \n"
 )
 
@@ -33,8 +33,8 @@ vision_slide_layout_suggestion_prompts = (
     + "```json\n"
     + "{}\n"
     + "```\n"
-    + "Some suggestions for the layout are: \n"
-    + "{}\n"
+    # + "Some suggestions for the layout are: \n"
+    # + "{}\n"
     + "Now generate the output JSON: \n"
 )
 
@@ -43,14 +43,18 @@ def build_slide_layout_suggestion_prompts(
     json_input: str,
     slide_width: int | float,
     slide_height: int | float,
-    suggestion: str,
+    # suggestion: str,
     image_flag: bool = False,
 ) -> str:
     if image_flag is False:
         return slide_layout_suggestion_prompts.format(
-            slide_width, slide_height, dumps(json_input, indent=4), suggestion
+            slide_width,
+            slide_height,
+            dumps(json_input, indent=4),
         )
     else:
         return vision_slide_layout_suggestion_prompts.format(
-            slide_width, slide_height, dumps(json_input, indent=4), suggestion
+            slide_width,
+            slide_height,
+            dumps(json_input, indent=4),
         )

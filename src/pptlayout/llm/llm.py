@@ -1,19 +1,14 @@
 import os
 
 import ollama
-from modelscope import snapshot_download
+
+# from modelscope import snapshot_download
 from ollama import Options
 from qwen_vl_utils import process_vision_info
 from transformers import AutoProcessor, Qwen2VLForConditionalGeneration
 
-model_dir = snapshot_download("qwen/Qwen2-VL-7B-Instruct")
-# from json import dumps
-
-# from tqdm import tqdm
-
-# from pptlayout.extractors.run_extractors import run_extractors
-
-# from .prompts import build_slide_layout_suggestion_prompts
+# model_dir = snapshot_download("qwen/Qwen2-VL-7B-Instruct")
+model_dir = "/data/share_weight/Qwen2-VL-7B-Instruct"
 
 
 def generate_slide_layout(
@@ -130,7 +125,7 @@ def generate_qwen2_vl(
         model_dir,
         torch_dtype="auto",
         device_map="auto",
-    )
+    ).to("cuda")
 
     min_pixels = 256 * 28 * 28
     max_pixels = 1280 * 28 * 28
@@ -220,17 +215,16 @@ def get_model_name(model_name: str | None, images: list[str] | None) -> str:
     return model_name
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-test_image = "/data/tianyuhu/PPTLayout/notebooks/test_input/image.jpg"
-prompt = "What can be improved in the layout of the slide and how? Give me some specific suggestions on how to improve the layout of the slide."
+# test_image = "/data/tianyuhu/PPTLayout/notebooks/test_input/image.jpg"
+# prompt = "give me the bounding box of the imagae"
 
-suggestion = generate_slide_layout(
-    model_name="Qwen2-VL-7B-Instruct",
-    prompt=prompt,
-    images=[test_image],
-    # json=True,
-)
-print(suggestion)
+# suggestion = generate_slide_layout(
+#     model_name="Qwen2-VL-7B-Instruct",
+#     prompt=prompt,
+#     images=[test_image],
+#     # json=True,
+# )
+# print(suggestion)
 # def process_pptx(pptx_path, output_dir, model_name="llama3.1:8b", temperature=0.5):
 #     """
 #     Extracts slide information from a PPTX file, generates layout suggestions using a specified model,

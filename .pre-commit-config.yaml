@@ -30,18 +30,3 @@ repos:
         entry: poetry run mypy src
         types: [python]
         pass_filenames: false
-
-      # - id: pytest
-      #   name: pytest
-      #   stages: [pre-commit]
-      #   language: system
-      #   entry: poetry run pytest
-      #   types: [python]
-
-      # - id: pytest-cov
-      #   name: pytest
-      #   stages: [pre-push]
-      #   language: system
-      #   entry: poetry run pytest --cov --cov-fail-under=100
-      #   types: [python]
-      #   pass_filenames: false

@@ -1,0 +1,15 @@
+question,expected_answer,llm_response,correct
+What is the shape id of the title of the slide? (Answer with a number),38,38,True
+How many images are in the slide? (Answer with a number),1,1,True
+Which element is in the exact center of the slide? (Answer with its shape id),42,3,False
+Are there any overlapping elements? (Answer 'Yes' or 'No'),Yes,No,False
+What is the spatial relationship of the title to the image? (Answer 'Above' or 'Below'),Above,Below,False
+What is the largest element by area in the slide? (Answer with its shape id),42,43,False
+Are there any elements that extend beyond the slide boundaries? (Answer 'Yes' or 'No'),No,No,True
+Which element is closest to the left edge? (Answer with its shape id),44,38,False
+Are all text elements aligned to the left? (Answer 'Yes' or 'No'),No,No,True
+How many elements in the slide have text? (Answer with a number),3,8,False
+Is the spacing between elements consistent? (Answer 'Yes' or 'No'),Yes,No,False
+Does the slide follow a horizontal or vertical layout? (Answer 'Horizontal' or 'Vertical'),Horizontal,Horizontal,True
+Are there any elements grouped closely together? (Answer 'Yes' or 'No'),No,Yes.,False
+Which element has the most text content? (Answer with its shape id),44,43,False

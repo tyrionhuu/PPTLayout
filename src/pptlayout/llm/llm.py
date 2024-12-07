@@ -8,7 +8,7 @@ from transformers import AutoProcessor, Qwen2VLForConditionalGeneration
 model_dir = "/data/share_weight/Qwen2-VL-7B-Instruct"
 
 
-def generate_slide_layout(
+def call_llm(
     model_name: str = "llama3.1:8b",
     prompt: str = "",
     temperature: float = 0.5,
@@ -212,10 +212,11 @@ def get_model_name(model_name: str | None, images: list[str] | None) -> str:
     return model_name
 
 
-# test_image = "/data/tianyuhu/PPTLayout/notebooks/test_input/image.jpg"
-# prompt = "give me the bounding box of the imagae"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# test_image = "/data/tianyuhu/PPTLayout/notebooks/test_input/image_grid.jpg"
+# prompt = "Take the grid as reference. Tell me what is wrong with the layout of the slide. Be concise."
 
-# suggestion = generate_slide_layout(
+# suggestion = call_llm(
 #     model_name="Qwen2-VL-7B-Instruct",
 #     prompt=prompt,
 #     images=[test_image],
